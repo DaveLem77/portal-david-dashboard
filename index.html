@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Portal David</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -11,130 +11,329 @@
   --b:#1c1c1c;--b2:#252525;
   --text:#d0d0d0;--t2:#5a5a5a;--t3:#2e2e2e;
   --green:#22c55e;--red:#ef4444;--gold:#c9a84c;--gold2:#e3c06a;
-  --goldb:rgba(201,168,76,.22);--gold3:rgba(201,168,76,.08);
+  --goldb:rgba(201,168,76,.25);--gold3:rgba(201,168,76,.08);
 }
 *{margin:0;padding:0;box-sizing:border-box}
-html,body{height:100%;background:var(--bg)}
-body{color:var(--text);font-family:'Inter',-apple-system,sans-serif;font-size:13px;max-width:440px;margin:0 auto;padding-bottom:60px}
-::-webkit-scrollbar{width:2px}::-webkit-scrollbar-thumb{background:var(--b2)}
+html,body{height:100%;background:var(--bg);overflow:hidden}
+body{color:var(--text);font-family:'Inter',-apple-system,sans-serif;font-size:13px;max-width:440px;margin:0 auto;display:flex;flex-direction:column}
 
-/* ── LOGIN ── */
-#login{position:fixed;inset:0;z-index:999;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center}
-#login::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(201,168,76,.02) 1px,transparent 1px),linear-gradient(90deg,rgba(201,168,76,.02) 1px,transparent 1px);background-size:44px 44px;pointer-events:none}
-#login::after{content:'';position:absolute;top:38%;left:50%;transform:translate(-50%,-50%);width:500px;height:500px;background:radial-gradient(ellipse,rgba(201,168,76,.07) 0%,transparent 65%);pointer-events:none}
-.lav{width:66px;height:66px;border-radius:50%;border:1px solid var(--goldb);overflow:hidden;background:var(--bg3);position:relative;z-index:1;margin-bottom:14px}
-.lav img,.lav-ph{width:100%;height:100%}
-.lav img{object-fit:cover;border-radius:50%}
-.lav-ph{display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:600;color:var(--gold)}
-.lbrand{font-size:10px;font-weight:600;letter-spacing:4px;color:var(--gold);text-transform:uppercase;margin-bottom:22px;position:relative;z-index:1}
-.lcard{background:var(--bg2);border:1px solid var(--b);border-radius:16px;padding:22px;width:250px;position:relative;z-index:1}
-.llbl{font-size:9px;color:var(--t3);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px}
-.linput{width:100%;background:var(--bg);border:1px solid var(--b);border-radius:9px;padding:12px 14px;color:var(--text);font-size:18px;letter-spacing:8px;font-family:inherit;outline:none;transition:border .2s}
-.linput:focus{border-color:var(--goldb)}
-.lbtn{width:100%;margin-top:12px;background:transparent;border:1px solid var(--b2);border-radius:9px;color:var(--t2);font-size:10px;font-weight:600;letter-spacing:2.5px;padding:12px;cursor:pointer;font-family:inherit;text-transform:uppercase;transition:all .2s}
-.lbtn:hover{background:var(--b);color:var(--text);border-color:var(--goldb)}
-.lerr{font-size:11px;color:var(--red);text-align:center;margin-top:10px;min-height:14px}
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar{width:2px}
+::-webkit-scrollbar-thumb{background:var(--b2)}
 
-/* ── APP ── */
-#app{display:none;min-height:100vh}
+/* ════════════════════════════════
+   LOGIN
+════════════════════════════════ */
+#login{
+  position:fixed;inset:0;z-index:999;
+  background:var(--bg);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:0;
+}
+.login-grid{
+  position:absolute;inset:0;
+  background-image:
+    linear-gradient(rgba(201,168,76,.018) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(201,168,76,.018) 1px,transparent 1px);
+  background-size:48px 48px;pointer-events:none;
+}
+.login-glow{
+  position:absolute;top:40%;left:50%;
+  transform:translate(-50%,-50%);
+  width:480px;height:480px;
+  background:radial-gradient(ellipse,rgba(201,168,76,.06) 0%,transparent 65%);
+  pointer-events:none;
+}
 
-/* ── HERO HEADER ── */
-.hero{
-  padding:20px 20px 16px;
+/* Avatar avec ring animé */
+.login-av-wrap{
+  position:relative;z-index:1;
+  width:90px;height:90px;
+  margin-bottom:18px;
+}
+.login-av-ring{
+  position:absolute;inset:-6px;
+  border-radius:50%;
+  background:conic-gradient(
+    var(--gold) 0deg,
+    var(--gold2) 60deg,
+    transparent 120deg,
+    transparent 180deg,
+    var(--gold) 240deg,
+    var(--gold2) 300deg,
+    var(--gold) 360deg
+  );
+  animation:spin 4s linear infinite;
+  padding:2px;
+}
+.login-av-ring::after{
+  content:'';
+  position:absolute;inset:2px;
+  border-radius:50%;
+  background:var(--bg);
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+.login-av{
+  position:relative;z-index:1;
+  width:90px;height:90px;border-radius:50%;
+  overflow:hidden;background:var(--bg3);
+  border:2px solid var(--bg);
+}
+.login-av img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.login-av-ph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:700;color:var(--gold)}
+
+.login-name{
+  font-size:10px;font-weight:700;letter-spacing:4px;
+  color:var(--gold);text-transform:uppercase;
+  margin-bottom:6px;position:relative;z-index:1;
+}
+.login-sub{
+  font-size:10px;color:var(--t3);letter-spacing:1px;
+  margin-bottom:26px;position:relative;z-index:1;
+}
+.login-card{
+  background:var(--bg2);border:1px solid var(--b);
+  border-radius:16px;padding:22px;width:256px;
+  position:relative;z-index:1;
+}
+.login-lbl{font-size:9px;color:var(--t3);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px}
+.login-input{
+  width:100%;background:var(--bg);border:1px solid var(--b);
+  border-radius:9px;padding:12px 14px;color:var(--text);
+  font-size:20px;letter-spacing:8px;font-family:inherit;outline:none;
+  transition:border .2s;text-align:center;
+}
+.login-input:focus{border-color:var(--goldb)}
+.login-btn{
+  width:100%;margin-top:12px;background:linear-gradient(135deg,rgba(201,168,76,.12),rgba(201,168,76,.06));
+  border:1px solid var(--goldb);border-radius:9px;
+  color:var(--gold);font-size:10px;font-weight:600;letter-spacing:2.5px;
+  padding:13px;cursor:pointer;font-family:inherit;text-transform:uppercase;
+  transition:all .2s;
+}
+.login-btn:hover{background:linear-gradient(135deg,rgba(201,168,76,.2),rgba(201,168,76,.1))}
+.login-err{font-size:11px;color:var(--red);text-align:center;margin-top:10px;min-height:14px}
+
+/* ════════════════════════════════
+   APP LAYOUT — flex column fixed height
+════════════════════════════════ */
+#app{
+  display:none;
+  flex-direction:column;
+  height:100vh;
+  height:100dvh;
+}
+
+/* ── HEADER ── */
+.header{
+  flex-shrink:0;
   background:var(--bg2);
   border-bottom:1px solid var(--b);
-  position:sticky;top:0;z-index:50;
-  backdrop-filter:blur(20px);
-  background:rgba(11,11,11,.97);
+  padding:14px 18px 12px;
 }
-.hero-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:2px}
-.hero-title{
-  font-size:13px;font-weight:700;letter-spacing:2px;
+.header-top{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:10px;
+}
+.header-av{
+  width:38px;height:38px;border-radius:50%;
+  overflow:hidden;background:var(--bg3);
+  border:1px solid var(--goldb);flex-shrink:0;
+  position:relative;
+}
+.header-av img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.header-av-ph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:var(--gold)}
+.header-center{text-align:center;flex:1}
+.header-title{
+  font-size:10px;font-weight:700;letter-spacing:3px;
   color:#fff;text-transform:uppercase;
 }
-.hero-live{display:flex;align-items:center;gap:6px}
+.header-clock{
+  font-size:28px;font-weight:300;color:#fff;
+  letter-spacing:-1.5px;line-height:1;
+  font-variant-numeric:tabular-nums;
+  margin-top:2px;
+}
+.header-right{text-align:right}
+.header-live{display:flex;align-items:center;gap:5px;justify-content:flex-end;margin-bottom:4px}
 .live-dot{width:5px;height:5px;border-radius:50%;background:var(--green);animation:bl 2.5s infinite}
 .live-dot.off{background:var(--red);animation:none}
 @keyframes bl{0%,100%{opacity:1}50%{opacity:.15}}
-.live-txt{font-size:10px;color:var(--t2)}
-.hero-clock{font-size:22px;font-weight:300;color:#fff;letter-spacing:-1px;font-variant-numeric:tabular-nums;margin-top:4px}
-.hero-date{font-size:10px;color:var(--t3);margin-top:2px}
+.live-txt{font-size:9px;color:var(--t2);letter-spacing:.5px}
+.header-date{font-size:10px;color:var(--t3)}
 
 /* ── TABS ── */
-.tabs{display:flex;border-bottom:1px solid var(--b);background:var(--bg2)}
-.tab{flex:1;text-align:center;padding:11px 0;font-size:9px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--t3);cursor:pointer;border-bottom:1px solid transparent;transition:all .2s}
+.tabs{
+  flex-shrink:0;
+  display:flex;border-bottom:1px solid var(--b);
+  background:var(--bg2);
+}
+.tab{
+  flex:1;text-align:center;padding:11px 0;
+  font-size:9px;font-weight:600;letter-spacing:2px;text-transform:uppercase;
+  color:var(--t3);cursor:pointer;
+  border-bottom:2px solid transparent;transition:all .2s;
+}
 .tab.on{color:var(--gold);border-bottom-color:var(--gold)}
-.pane{display:none}.pane.on{display:block}
 
-/* ── ANNOUNCE ── */
-.awrap{padding:14px 20px 0}
+/* ── CONTENT AREA ── */
+.content{
+  flex:1;overflow:hidden;position:relative;
+}
+.pane{
+  display:none;
+  position:absolute;inset:0;
+  overflow-y:auto;
+  -webkit-overflow-scrolling:touch;
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+.pane.on{display:block}
+
+/* ── CHAT PANE — special layout ── */
+#pane-chat{
+  display:none;
+  flex-direction:column;
+  position:absolute;inset:0;
+}
+#pane-chat.on{display:flex}
+.chat-scroll{
+  flex:1;overflow-y:auto;
+  -webkit-overflow-scrolling:touch;
+  padding:14px 16px;
+  display:flex;flex-direction:column;gap:10px;
+}
+.chat-bottom{
+  flex-shrink:0;
+  padding:10px 14px;
+  padding-bottom:calc(10px + env(safe-area-inset-bottom,0px));
+  border-top:1px solid var(--b);
+  background:var(--bg);
+  display:flex;gap:8px;align-items:flex-end;
+}
+.chat-sugs-wrap{
+  flex-shrink:0;
+  padding:8px 14px 0;
+  background:var(--bg);
+}
+.chat-sugs{display:flex;flex-wrap:wrap;gap:5px}
+.chat-sug{
+  font-size:10px;padding:5px 10px;border-radius:7px;
+  background:var(--bg2);border:1px solid var(--b);
+  color:var(--t2);cursor:pointer;transition:all .2s;
+  white-space:nowrap;
+}
+.chat-sug:hover,.chat-sug:active{border-color:var(--goldb);color:var(--gold)}
+.chat-input{
+  flex:1;background:var(--bg2);border:1px solid var(--b);
+  border-radius:10px;padding:10px 12px;
+  color:var(--text);font-size:13px;font-family:inherit;
+  outline:none;resize:none;
+  max-height:100px;min-height:40px;
+  line-height:1.4;
+  transition:border .2s;
+  -webkit-appearance:none;
+}
+.chat-input:focus{border-color:var(--goldb)}
+.chat-input::placeholder{color:var(--t3)}
+.chat-send{
+  background:var(--gold3);border:1px solid var(--goldb);
+  border-radius:10px;padding:10px 14px;
+  color:var(--gold);font-size:11px;font-weight:600;
+  cursor:pointer;font-family:inherit;
+  transition:all .2s;white-space:nowrap;
+  height:40px;display:flex;align-items:center;
+  -webkit-appearance:none;
+}
+.chat-send:disabled{opacity:.4;cursor:not-allowed}
+
+/* Chat messages */
+.msg-row{display:flex;align-items:flex-end;gap:8px}
+.msg-row.me{flex-direction:row-reverse}
+.msg-av{width:28px;height:28px;border-radius:50%;overflow:hidden;flex-shrink:0;border:1px solid var(--b2);background:var(--bg3)}
+.msg-av img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.msg-av-ph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--gold)}
+.msg-group{display:flex;flex-direction:column;max-width:78%}
+.msg-group.me{align-items:flex-end}
+.msg-sender{font-size:9px;color:var(--t3);letter-spacing:.5px;margin-bottom:3px;padding:0 2px}
+.bubble{padding:10px 13px;border-radius:12px;font-size:12px;line-height:1.7}
+.bubble-bot{background:var(--bg2);border:1px solid var(--b);color:var(--t2);border-bottom-left-radius:3px}
+.bubble-bot b{color:var(--text);font-weight:500}
+.bubble-me{background:var(--gold3);border:1px solid var(--goldb);color:var(--gold2);border-bottom-right-radius:3px}
+.bubble-think{background:var(--bg2);border:1px solid var(--b);color:var(--t3);font-size:11px;font-style:italic;padding:8px 13px;border-radius:10px;border-bottom-left-radius:3px}
+
+/* ── DASHBOARD CONTENT ── */
+.awrap{padding:14px 18px 0}
 .ann{border-radius:12px;border:1px solid var(--goldb);background:var(--gold3);padding:14px 16px;position:relative;overflow:hidden}
-.ann::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(201,168,76,.5),transparent)}
+.ann::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(201,168,76,.6),transparent)}
 .ann-tag{display:flex;align-items:center;gap:6px;font-size:8px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:8px}
 .ann-dot{width:4px;height:4px;border-radius:50%;background:var(--gold);animation:bl 2s infinite}
 .ann-body{font-size:12px;color:#9a8b68;line-height:1.8}
 .ann-body b{color:var(--gold2);font-weight:500}
 
-/* ── BALANCE ── */
-.bal-hero{margin:12px 20px 0;background:var(--bg2);border:1px solid var(--b);border-radius:14px;overflow:hidden}
-.bal-main{padding:18px 18px 14px;border-bottom:1px solid var(--b);display:flex;align-items:flex-end;justify-content:space-between}
-.bal-lbl{font-size:9px;color:var(--t2);text-transform:uppercase;letter-spacing:1.2px;margin-bottom:6px}
-.bal-amt{font-size:32px;font-weight:700;letter-spacing:-1.5px;line-height:1}
-.bal-cur{font-size:12px;font-weight:400;color:var(--t2);margin-left:3px}
-.bal-init-lbl{font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
+/* Balance */
+.bal-card{margin:12px 18px 0;background:var(--bg2);border:1px solid var(--b);border-radius:12px;overflow:hidden}
+.bal-main{padding:16px 16px 13px;border-bottom:1px solid var(--b);display:flex;align-items:flex-end;justify-content:space-between}
+.bal-lbl{font-size:9px;color:var(--t2);text-transform:uppercase;letter-spacing:1.2px;margin-bottom:5px}
+.bal-amt{font-size:30px;font-weight:700;letter-spacing:-1.5px;line-height:1}
+.bal-cur{font-size:11px;font-weight:400;color:var(--t2);margin-left:3px}
+.bal-init-lbl{font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:3px}
 .bal-init-val{font-size:12px;font-weight:500;color:var(--t2)}
 .bal-grid{display:grid;grid-template-columns:repeat(3,1fr)}
-.bg-item{padding:11px 14px;border-right:1px solid var(--b)}
-.bg-item:last-child{border-right:none}
-.bg-l{font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:.7px;margin-bottom:4px}
-.bg-v{font-size:14px;font-weight:600}
-.bg-s{font-size:9px;color:var(--t3);margin-top:2px}
-.g{color:var(--green)}.r{color:var(--red)}.go{color:var(--gold)}.m{color:var(--t2)}
+.bgi{padding:10px 13px;border-right:1px solid var(--b)}
+.bgi:last-child{border-right:none}
+.bgi-l{font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:.7px;margin-bottom:4px}
+.bgi-v{font-size:13px;font-weight:600}
+.bgi-s{font-size:9px;color:var(--t3);margin-top:2px}
 
-/* ── CHART ── */
-.chart-wrap{margin:10px 20px 0;background:var(--bg2);border:1px solid var(--b);border-radius:12px;overflow:hidden}
-.chart-head{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid var(--b)}
-.chart-title{font-size:9px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--t3)}
-.chart-tf{display:flex;gap:2px}
-.tf-btn{font-size:9px;padding:3px 7px;border-radius:4px;cursor:pointer;border:none;background:transparent;color:var(--t3);font-family:inherit;transition:all .2s}
+/* Chart */
+.chart-card{margin:10px 18px 0;background:var(--bg2);border:1px solid var(--b);border-radius:12px;overflow:hidden}
+.chart-head{display:flex;align-items:center;justify-content:space-between;padding:11px 14px;border-bottom:1px solid var(--b)}
+.chart-title-txt{font-size:9px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--t3)}
+.tf-btns{display:flex;gap:2px}
+.tf-btn{font-size:9px;padding:3px 7px;border-radius:4px;cursor:pointer;border:none;background:transparent;color:var(--t3);font-family:inherit;transition:all .15s}
 .tf-btn.on{background:var(--gold3);color:var(--gold);border:1px solid var(--goldb)}
-.chart-area{padding:12px 14px 8px}
-canvas{display:block;width:100%}
+.chart-body{padding:10px 12px 8px}
 
-/* ── SECTION ── */
-.sec{padding:12px 20px 0}
+/* Position */
+.sec{padding:10px 18px 0}
 .sec-t{font-size:9px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--t3);margin-bottom:10px;display:flex;align-items:center;gap:10px}
 .sec-t::after{content:'';flex:1;height:1px;background:var(--b)}
-
-/* ── POSITION ── */
 .pos-card{background:var(--bg2);border:1px solid var(--b);border-radius:12px;overflow:hidden;transition:border-color .3s}
 .pos-card.long{border-color:rgba(34,197,94,.2)}.pos-card.short{border-color:rgba(239,68,68,.2)}
-.pos-head{padding:13px 15px 11px;border-bottom:1px solid var(--b);display:flex;align-items:center;justify-content:space-between}
+.pos-head{padding:12px 14px;border-bottom:1px solid var(--b);display:flex;align-items:center;justify-content:space-between}
 .pos-sym{font-size:15px;font-weight:700;color:#fff;letter-spacing:-.3px}
 .pos-sym-sub{font-size:10px;color:var(--t2);margin-top:1px}
 .pos-badge{font-size:9px;font-weight:700;padding:3px 10px;border-radius:4px;letter-spacing:1.5px;text-transform:uppercase}
 .badge-long{background:rgba(34,197,94,.1);color:var(--green);border:1px solid rgba(34,197,94,.2)}
 .badge-short{background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.2)}
 .badge-wait{background:var(--bg3);color:var(--t3);border:1px solid var(--b)}
-.pnl-strip{padding:11px 15px;border-bottom:1px solid var(--b);display:flex;align-items:center;justify-content:space-between;background:var(--bg3)}
+.pnl-strip{padding:10px 14px;border-bottom:1px solid var(--b);display:flex;align-items:center;justify-content:space-between;background:var(--bg3)}
 .pnl-lbl{font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:.8px}
 .pnl-val{font-size:20px;font-weight:700;letter-spacing:-.8px}
+
+/* Live candlestick chart */
+.candle-card{margin:0;border-top:1px solid var(--b)}
+.candle-head{padding:8px 14px;display:flex;align-items:center;justify-content:space-between}
+.candle-title{font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:1px}
+.candle-price{font-size:11px;font-weight:600;color:var(--text)}
+.candle-body{padding:0 10px 8px}
+
 .pos-grid{display:grid;grid-template-columns:1fr 1fr}
-.pc{padding:10px 15px;border-bottom:1px solid var(--b);border-right:1px solid var(--b)}
+.pc{padding:10px 14px;border-bottom:1px solid var(--b);border-right:1px solid var(--b)}
 .pc:nth-child(even){border-right:none}
 .pc:nth-last-child(-n+2){border-bottom:none}
 .pc-l{font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:.7px;margin-bottom:4px}
-.pc-v{font-size:13px;font-weight:500;color:var(--text)}
-.conf-row{padding:11px 15px;border-top:1px solid var(--b);border-bottom:1px solid var(--b)}
+.pc-v{font-size:12px;font-weight:500;color:var(--text)}
+.conf-row{padding:10px 14px;border-top:1px solid var(--b);border-bottom:1px solid var(--b)}
 .conf-head{display:flex;justify-content:space-between;font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:.7px;margin-bottom:7px}
 .conf-track{height:2px;background:var(--b);border-radius:1px;overflow:hidden}
 .conf-fill{height:100%;border-radius:1px;transition:width 1.2s ease}
-.why-block{padding:13px 15px}
-.why-lbl{font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:.7px;margin-bottom:8px}
+.why-block{padding:12px 14px}
+.why-lbl{font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:.7px;margin-bottom:7px}
 .why-txt{font-size:12px;color:var(--t2);line-height:1.85}
 .why-txt b{color:#9a9a9a;font-weight:500}
 
-/* ── HISTORY ── */
+/* History */
 .hist{display:flex;flex-direction:column;gap:8px}
 .hi{background:var(--bg2);border:1px solid var(--b);border-radius:12px;overflow:hidden}
 .hi.win{border-color:rgba(34,197,94,.15)}.hi.loss{border-color:rgba(239,68,68,.1)}
@@ -152,223 +351,205 @@ canvas{display:block;width:100%}
 .hi-why b{color:var(--t2);font-weight:500}
 .empty{text-align:center;padding:28px 20px;font-size:11px;color:var(--t3);background:var(--bg2);border:1px solid var(--b);border-radius:12px}
 
-/* ── CHAT ── */
-#pane-chat{display:none;flex-direction:column;height:calc(100vh - 120px)}
-#pane-chat.on{display:flex}
-.chat-msgs{flex:1;overflow-y:auto;padding:14px 20px;display:flex;flex-direction:column;gap:10px}
-.chat-msgs::-webkit-scrollbar{width:2px}
-.chat-msgs::-webkit-scrollbar-thumb{background:var(--b2)}
-.msg-row{display:flex;align-items:flex-end;gap:8px}
-.msg-row.me{flex-direction:row-reverse}
-.msg-av{width:26px;height:26px;border-radius:50%;overflow:hidden;flex-shrink:0;border:1px solid var(--b2)}
-.msg-av img{width:100%;height:100%;object-fit:cover;border-radius:50%}
-.msg-av-ph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--gold);background:var(--bg3)}
-.bubble{max-width:80%;padding:10px 13px;border-radius:12px;font-size:12px;line-height:1.7}
-.bubble-bot{background:var(--bg2);border:1px solid var(--b);color:var(--t2);border-bottom-left-radius:3px}
-.bubble-bot b{color:var(--text);font-weight:500}
-.bubble-me{background:var(--gold3);border:1px solid var(--goldb);color:var(--gold2);border-bottom-right-radius:3px}
-.bubble-think{background:var(--bg2);border:1px solid var(--b);color:var(--t3);font-size:11px;font-style:italic;padding:8px 13px;border-radius:10px;border-bottom-left-radius:3px}
-.chat-sender{font-size:9px;color:var(--t3);letter-spacing:.5px;margin-bottom:3px;padding:0 2px}
-.msg-group{display:flex;flex-direction:column;max-width:80%}
-.msg-group.me{align-items:flex-end}
-.chat-sugs{display:flex;flex-wrap:wrap;gap:6px;padding:8px 20px 4px}
-.chat-sug{font-size:10px;padding:5px 10px;border-radius:7px;background:var(--bg2);border:1px solid var(--b);color:var(--t2);cursor:pointer;transition:all .2s}
-.chat-sug:hover{border-color:var(--goldb);color:var(--gold)}
-.chat-bottom{border-top:1px solid var(--b);padding:10px 16px;display:flex;gap:8px;background:var(--bg)}
-.chat-input{flex:1;background:var(--bg2);border:1px solid var(--b);border-radius:10px;padding:10px 13px;color:var(--text);font-size:12px;font-family:inherit;outline:none;transition:border .2s;resize:none;max-height:80px;line-height:1.5}
-.chat-input:focus{border-color:var(--goldb)}
-.chat-input::placeholder{color:var(--t3)}
-.chat-send{background:var(--gold3);border:1px solid var(--goldb);border-radius:10px;padding:10px 14px;color:var(--gold);font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .2s;white-space:nowrap;align-self:flex-end}
-.chat-send:hover{background:rgba(201,168,76,.18)}
-.chat-send:disabled{opacity:.4;cursor:not-allowed}
-
-/* TOAST */
-#toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:var(--bg3);border:1px solid var(--b2);border-radius:10px;padding:11px 20px;font-size:12px;color:var(--text);max-width:340px;width:calc(100% - 36px);box-shadow:0 8px 32px rgba(0,0,0,.9);z-index:9999;opacity:0;transition:opacity .25s;pointer-events:none;text-align:center}
-#toast.show{opacity:1}
+.g{color:var(--green)}.r{color:var(--red)}.go{color:var(--gold)}.m{color:var(--t2)}
+.pb14{padding-bottom:14px}
 </style>
 </head>
 <body>
 
-<!-- LOGIN -->
+<!-- ══ LOGIN ══ -->
 <div id="login">
-  <div class="lav">
-    <img src="media/avatar.png" onerror="this.parentElement.innerHTML='<div class=\'lav-ph\'>D</div>'" alt="">
+  <div class="login-grid"></div>
+  <div class="login-glow"></div>
+  <div class="login-av-wrap">
+    <div class="login-av-ring"></div>
+    <div class="login-av">
+      <img src="media/avatar.png" onerror="this.parentElement.innerHTML='<div class=\'login-av-ph\'>D</div>'" alt="">
+    </div>
   </div>
-  <div class="lbrand">Portal David</div>
-  <div class="lcard">
-    <div class="llbl">Code d'accès</div>
-    <input class="linput" id="lpw" type="password" maxlength="6" placeholder="••••" autofocus onkeydown="if(event.key==='Enter')auth()">
-    <button class="lbtn" onclick="auth()">Accéder</button>
-    <div class="lerr" id="lerr"></div>
+  <div class="login-name">Portal David</div>
+  <div class="login-sub">Système privé · Accès restreint</div>
+  <div class="login-card">
+    <div class="login-lbl">Code d'accès</div>
+    <input class="login-input" id="lpw" type="password" maxlength="6" placeholder="••••"
+      autofocus onkeydown="if(event.key==='Enter')auth()" inputmode="numeric">
+    <button class="login-btn" onclick="auth()">Accéder au système</button>
+    <div class="login-err" id="lerr"></div>
   </div>
 </div>
 
-<!-- APP -->
+<!-- ══ APP ══ -->
 <div id="app">
 
-  <!-- HERO HEADER -->
-  <div class="hero">
-    <div class="hero-top">
-      <div class="hero-title">Portal David</div>
-      <div class="hero-live">
-        <div class="live-dot" id="ldot"></div>
-        <span class="live-txt" id="lstatus">En direct</span>
+  <!-- HEADER fixe -->
+  <div class="header">
+    <div class="header-top">
+      <div class="header-av">
+        <img src="media/avatar.png" onerror="this.parentElement.innerHTML='<div class=\'header-av-ph\'>D</div>'" alt="">
+      </div>
+      <div class="header-center">
+        <div class="header-title">Portal David</div>
+        <div class="header-clock" id="clk">--:--:--</div>
+      </div>
+      <div class="header-right">
+        <div class="header-live">
+          <div class="live-dot" id="ldot"></div>
+          <span class="live-txt" id="lstatus">En direct</span>
+        </div>
+        <div class="header-date" id="hdate"></div>
       </div>
     </div>
-    <div class="hero-clock" id="clk">--:--:--</div>
-    <div class="hero-date" id="hdate"></div>
   </div>
 
-  <!-- TABS -->
+  <!-- TABS fixe -->
   <div class="tabs">
     <div class="tab on" onclick="setTab('dash',this)">Dashboard</div>
     <div class="tab" onclick="setTab('hist',this)">Historique</div>
     <div class="tab" onclick="setTab('chat',this)">Aivro</div>
   </div>
 
-  <!-- DASHBOARD -->
-  <div class="pane on" id="pane-dash">
+  <!-- CONTENT AREA -->
+  <div class="content">
 
-    <!-- ANNOUNCE -->
-    <div class="awrap">
-      <div class="ann">
-        <div class="ann-tag"><div class="ann-dot"></div>Système en direct</div>
-        <div class="ann-body" id="ann">Connexion…</div>
+    <!-- DASHBOARD -->
+    <div class="pane on" id="pane-dash">
+      <div class="awrap">
+        <div class="ann">
+          <div class="ann-tag"><div class="ann-dot"></div>Situation actuelle</div>
+          <div class="ann-body" id="ann">Connexion…</div>
+        </div>
       </div>
-    </div>
 
-    <!-- BALANCE -->
-    <div class="bal-hero">
-      <div class="bal-main">
-        <div>
-          <div class="bal-lbl">Solde total</div>
+      <div class="bal-card">
+        <div class="bal-main">
           <div>
-            <span class="bal-amt m" id="bal-now">—</span>
-            <span class="bal-cur">USDT</span>
+            <div class="bal-lbl">Solde total</div>
+            <div>
+              <span class="bal-amt m" id="bal-now">—</span>
+              <span class="bal-cur">USDT</span>
+            </div>
+          </div>
+          <div style="text-align:right">
+            <div class="bal-init-lbl">Solde initial</div>
+            <div class="bal-init-val">$94.36 USDT</div>
           </div>
         </div>
-        <div style="text-align:right">
-          <div class="bal-init-lbl">Solde initial</div>
-          <div class="bal-init-val">$94.36 USDT</div>
+        <div class="bal-grid">
+          <div class="bgi"><div class="bgi-l">P&L live</div><div class="bgi-v m" id="bal-tr">—</div><div class="bgi-s">non réalisé</div></div>
+          <div class="bgi"><div class="bgi-l">Aujourd'hui</div><div class="bgi-v m" id="bal-day">—</div><div class="bgi-s">USDT</div></div>
+          <div class="bgi"><div class="bgi-l">Total net</div><div class="bgi-v m" id="bal-tot">—</div><div class="bgi-s">depuis début</div></div>
         </div>
       </div>
-      <div class="bal-grid">
-        <div class="bg-item">
-          <div class="bg-l">P&L live</div>
-          <div class="bg-v m" id="bal-tr">—</div>
-          <div class="bg-s">non réalisé</div>
-        </div>
-        <div class="bg-item">
-          <div class="bg-l">Aujourd'hui</div>
-          <div class="bg-v m" id="bal-day">—</div>
-          <div class="bg-s">USDT</div>
-        </div>
-        <div class="bg-item">
-          <div class="bg-l">Total net</div>
-          <div class="bg-v m" id="bal-tot">—</div>
-          <div class="bg-s">depuis début</div>
-        </div>
-      </div>
-    </div>
 
-    <!-- CHART -->
-    <div class="chart-wrap">
-      <div class="chart-head">
-        <span class="chart-title">Évolution du capital</span>
-        <div class="chart-tf">
-          <button class="tf-btn on" onclick="setTf('1m',this)">1m</button>
-          <button class="tf-btn" onclick="setTf('1h',this)">1h</button>
-          <button class="tf-btn" onclick="setTf('1j',this)">1j</button>
-          <button class="tf-btn" onclick="setTf('1M',this)">1M</button>
-          <button class="tf-btn" onclick="setTf('1a',this)">1a</button>
-        </div>
-      </div>
-      <div class="chart-area">
-        <canvas id="evo" height="100"></canvas>
-      </div>
-    </div>
-
-    <!-- POSITION -->
-    <div class="sec">
-      <div class="sec-t">Position en cours</div>
-      <div class="pos-card" id="pos-card">
-        <div class="pos-head">
-          <div>
-            <div class="pos-sym" id="pos-sym">En surveillance</div>
-            <div class="pos-sym-sub" id="pos-sym-sub">Aucune position ouverte</div>
+      <!-- Capital chart -->
+      <div class="chart-card">
+        <div class="chart-head">
+          <span class="chart-title-txt">Évolution du capital</span>
+          <div class="tf-btns">
+            <button class="tf-btn on" onclick="setTf('1m',this)">1m</button>
+            <button class="tf-btn" onclick="setTf('1h',this)">1h</button>
+            <button class="tf-btn" onclick="setTf('1j',this)">1j</button>
+            <button class="tf-btn" onclick="setTf('1M',this)">1M</button>
+            <button class="tf-btn" onclick="setTf('1a',this)">1a</button>
           </div>
-          <div class="pos-badge badge-wait" id="pos-badge">ATTENTE</div>
         </div>
-        <div class="pnl-strip">
-          <div class="pnl-lbl">P&L non réalisé</div>
-          <div class="pnl-val m" id="pos-pnl">—</div>
-        </div>
-        <div class="pos-grid">
-          <div class="pc"><div class="pc-l">Prix d'entrée</div><div class="pc-v" id="pos-ep">—</div></div>
-          <div class="pc"><div class="pc-l">Prix actuel</div><div class="pc-v" id="pos-cp">—</div></div>
-          <div class="pc"><div class="pc-l">Take Profit</div><div class="pc-v g" id="pos-tp">—</div></div>
-          <div class="pc"><div class="pc-l">Stop Loss</div><div class="pc-v r" id="pos-sl">—</div></div>
-          <div class="pc"><div class="pc-l">Levier</div><div class="pc-v" id="pos-lev">—</div></div>
-          <div class="pc"><div class="pc-l">Marge</div><div class="pc-v" id="pos-margin">—</div></div>
-          <div class="pc"><div class="pc-l">Liquidation</div><div class="pc-v r" id="pos-liq">—</div></div>
-          <div class="pc"><div class="pc-l">Taille</div><div class="pc-v" id="pos-size">—</div></div>
-        </div>
-        <div class="conf-row">
-          <div class="conf-head"><span>Confiance du signal</span><span id="conf-num" class="m">—</span></div>
-          <div class="conf-track"><div class="conf-fill" id="conf-fill" style="width:0%"></div></div>
-        </div>
-        <div class="why-block">
-          <div class="why-lbl">Pourquoi ce trade</div>
-          <div class="why-txt" id="pos-why">Le bot surveille le marché et attend un signal solide.</div>
+        <div class="chart-body">
+          <canvas id="evo" height="90"></canvas>
         </div>
       </div>
-    </div>
 
-    <div style="height:14px"></div>
-  </div><!-- /dash -->
+      <!-- Position -->
+      <div class="sec">
+        <div class="sec-t">Position en cours</div>
+        <div class="pos-card" id="pos-card">
+          <div class="pos-head">
+            <div>
+              <div class="pos-sym" id="pos-sym">En surveillance</div>
+              <div class="pos-sym-sub" id="pos-sym-sub">Aucune position ouverte</div>
+            </div>
+            <div class="pos-badge badge-wait" id="pos-badge">ATTENTE</div>
+          </div>
+          <div class="pnl-strip">
+            <div class="pnl-lbl">P&L non réalisé</div>
+            <div class="pnl-val m" id="pos-pnl">—</div>
+          </div>
 
-  <!-- HISTORIQUE -->
-  <div class="pane" id="pane-hist">
-    <div class="sec" style="padding-bottom:14px;margin-top:6px">
-      <div class="sec-t">Tous les trades</div>
-      <div class="hist" id="hist-list">
-        <div class="empty">Aucun trade fermé pour l'instant.</div>
-      </div>
-    </div>
-  </div>
+          <!-- Live candle chart — visible only when position open -->
+          <div class="candle-card" id="candle-card" style="display:none">
+            <div class="candle-head">
+              <span class="candle-title" id="candle-sym-label">— · 1 minute</span>
+              <span class="candle-price" id="candle-cur-price">—</span>
+            </div>
+            <div class="candle-body">
+              <canvas id="candle-chart" height="120"></canvas>
+            </div>
+          </div>
 
-  <!-- CHAT AIVRO -->
-  <div class="pane" id="pane-chat">
-    <div class="chat-msgs" id="chat-msgs">
-      <div class="msg-row">
-        <div class="msg-av">
-          <img src="media/bot.png" onerror="this.parentElement.innerHTML='<div class=\'msg-av-ph\'>A</div>'" alt="Aivro">
-        </div>
-        <div class="msg-group">
-          <div class="chat-sender">Aivro</div>
-          <div class="bubble bubble-bot">
-            Bonjour David. Je suis <b>Aivro</b>, l'intelligence de ton bot de trading. Pose-moi n'importe quelle question sur mes décisions, ma stratégie, ou les trades en cours. Je t'explique tout clairement.
+          <div class="pos-grid">
+            <div class="pc"><div class="pc-l">Prix d'entrée</div><div class="pc-v" id="pos-ep">—</div></div>
+            <div class="pc"><div class="pc-l">Prix actuel</div><div class="pc-v" id="pos-cp">—</div></div>
+            <div class="pc"><div class="pc-l">Take Profit</div><div class="pc-v g" id="pos-tp">—</div></div>
+            <div class="pc"><div class="pc-l">Stop Loss</div><div class="pc-v r" id="pos-sl">—</div></div>
+            <div class="pc"><div class="pc-l">Levier</div><div class="pc-v" id="pos-lev">—</div></div>
+            <div class="pc"><div class="pc-l">Marge</div><div class="pc-v" id="pos-margin">—</div></div>
+            <div class="pc"><div class="pc-l">Liquidation</div><div class="pc-v r" id="pos-liq">—</div></div>
+            <div class="pc"><div class="pc-l">Taille</div><div class="pc-v" id="pos-size">—</div></div>
+          </div>
+          <div class="conf-row">
+            <div class="conf-head"><span>Confiance</span><span id="conf-num" class="m">—</span></div>
+            <div class="conf-track"><div class="conf-fill" id="conf-fill" style="width:0%"></div></div>
+          </div>
+          <div class="why-block">
+            <div class="why-lbl">Pourquoi ce trade</div>
+            <div class="why-txt" id="pos-why">Le bot surveille le marché et attend un signal solide.</div>
           </div>
         </div>
       </div>
-    </div>
-    <div class="chat-sugs" id="chat-sugs">
-      <div class="chat-sug" onclick="askSug(this)">Pourquoi tu as pris ce trade ?</div>
-      <div class="chat-sug" onclick="askSug(this)">Quelle est ta stratégie ?</div>
-      <div class="chat-sug" onclick="askSug(this)">Pourquoi ce levier ?</div>
-      <div class="chat-sug" onclick="askSug(this)">Combien j'ai fait aujourd'hui ?</div>
-      <div class="chat-sug" onclick="askSug(this)">C'est quoi le trailing stop ?</div>
-      <div class="chat-sug" onclick="askSug(this)">Tu apprends comment ?</div>
-    </div>
-    <div class="chat-bottom">
-      <textarea class="chat-input" id="chat-input" placeholder="Pose une question à Aivro…" rows="1"
-        onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChat()}"></textarea>
-      <button class="chat-send" id="chat-send" onclick="sendChat()">Envoyer</button>
-    </div>
-  </div>
+      <div class="pb14"></div>
+    </div><!-- /dash -->
 
+    <!-- HISTORIQUE -->
+    <div class="pane" id="pane-hist">
+      <div class="sec pb14" style="margin-top:6px">
+        <div class="sec-t">Tous les trades</div>
+        <div class="hist" id="hist-list">
+          <div class="empty">Aucun trade fermé pour l'instant.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CHAT AIVRO -->
+    <div class="pane" id="pane-chat">
+      <div class="chat-scroll" id="chat-scroll">
+        <div class="msg-row">
+          <div class="msg-av"><img src="media/bot.png" onerror="this.parentElement.innerHTML='<div class=\'msg-av-ph\'>A</div>'" alt="Aivro"></div>
+          <div class="msg-group">
+            <div class="msg-sender">Aivro</div>
+            <div class="bubble bubble-bot">Bonjour David. Je suis <b>Aivro</b>, l'intelligence de ton bot. Pose-moi n'importe quelle question sur mes décisions ou ta stratégie.</div>
+          </div>
+        </div>
+      </div>
+      <div class="chat-sugs-wrap" id="sugs-wrap">
+        <div class="chat-sugs">
+          <div class="chat-sug" onclick="askSug(this)">Pourquoi ce trade ?</div>
+          <div class="chat-sug" onclick="askSug(this)">Quelle est ta stratégie ?</div>
+          <div class="chat-sug" onclick="askSug(this)">Combien aujourd'hui ?</div>
+          <div class="chat-sug" onclick="askSug(this)">Le trailing stop ?</div>
+          <div class="chat-sug" onclick="askSug(this)">Tu apprends comment ?</div>
+        </div>
+      </div>
+      <div class="chat-bottom">
+        <textarea class="chat-input" id="chat-input"
+          placeholder="Pose une question à Aivro…"
+          rows="1"
+          onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChat()}"
+          oninput="autoResize(this)"></textarea>
+        <button class="chat-send" id="chat-send" onclick="sendChat()">↑</button>
+      </div>
+    </div>
+
+  </div><!-- /content -->
 </div><!-- /app -->
-<div id="toast"></div>
 
 <script>
 const BOT     = 'https://portal-david-bot.onrender.com';
@@ -379,7 +560,7 @@ const INITIAL = 94.36;
 function auth() {
   if (document.getElementById('lpw').value === PWD) {
     document.getElementById('login').style.display = 'none';
-    document.getElementById('app').style.display = 'block';
+    document.getElementById('app').style.display   = 'flex';
     init();
   } else {
     document.getElementById('lerr').textContent = 'Code incorrect.';
@@ -393,11 +574,13 @@ function setTab(id, el) {
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('on'));
   el.classList.add('on');
   document.querySelectorAll('.pane').forEach(p => p.classList.remove('on'));
-  const pane = document.getElementById('pane-' + id);
-  pane.classList.add('on');
+  document.getElementById('pane-' + id).classList.add('on');
   if (id === 'chat') {
-    const msgs = document.getElementById('chat-msgs');
-    setTimeout(() => msgs.scrollTop = msgs.scrollHeight, 50);
+    setTimeout(() => {
+      const s = document.getElementById('chat-scroll');
+      s.scrollTop = s.scrollHeight;
+      document.getElementById('chat-input').focus();
+    }, 100);
   }
 }
 
@@ -406,148 +589,228 @@ function updateClock() {
   const now = new Date();
   document.getElementById('clk').textContent = now.toTimeString().slice(0, 8);
   document.getElementById('hdate').textContent = now.toLocaleDateString('fr-CA', {
-    weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
+    day:'numeric', month:'short'
   });
 }
 setInterval(updateClock, 1000);
 updateClock();
 
-// ── CHART ──────────────────────────────────────────────────────────────
-// Store all data points
-let allPoints = [{ bal: INITIAL, ts: Date.now() }];
-let currentTf = '1m';
-
-const tfMs = {
-  '1m': 60 * 1000,
-  '1h': 60 * 60 * 1000,
-  '1j': 24 * 60 * 60 * 1000,
-  '1M': 30 * 24 * 60 * 60 * 1000,
-  '1a': 365 * 24 * 60 * 60 * 1000,
-};
+// ── CAPITAL CHART ─────────────────────────────────────────────────────
+let allPts  = [{ bal: INITIAL, ts: Date.now() }];
+let curTf   = '1m';
+const tfMs  = { '1m':60000,'1h':3600000,'1j':86400000,'1M':2592000000,'1a':31536000000 };
 
 function setTf(tf, el) {
-  currentTf = tf;
+  curTf = tf;
   document.querySelectorAll('.tf-btn').forEach(b => b.classList.remove('on'));
   el.classList.add('on');
-  drawChart();
+  drawCapChart();
 }
 
-function getFilteredPoints() {
+function addPt(bal) {
   const now = Date.now();
-  const cutoff = now - tfMs[currentTf];
-  let pts = allPoints.filter(p => p.ts >= cutoff);
-  if (pts.length < 2) pts = allPoints.slice(-2);
-  return pts;
-}
-
-function updateChartData(bal) {
-  const now = Date.now();
-  const last = allPoints[allPoints.length - 1];
-  // Add point every 30 seconds or on balance change
+  const last = allPts[allPts.length - 1];
   if (!last || now - last.ts >= 30000 || Math.abs(bal - last.bal) > 0.001) {
-    allPoints.push({ bal, ts: now });
-    if (allPoints.length > 10000) allPoints = allPoints.slice(-10000);
+    allPts.push({ bal, ts: now });
+    if (allPts.length > 10000) allPts = allPts.slice(-10000);
   }
 }
 
-function drawChart() {
-  const canvas = document.getElementById('evo');
-  if (!canvas) return;
-  const ctx = canvas.getContext('2d');
-  const W   = canvas.offsetWidth || 380;
-  const H   = 100;
-  canvas.width  = W;
-  canvas.height = H;
+function drawCapChart() {
+  const cv = document.getElementById('evo');
+  if (!cv) return;
+  const ctx = cv.getContext('2d');
+  const W   = cv.offsetWidth || 370;
+  const H   = 90;
+  cv.width  = W; cv.height = H;
 
-  const data = getFilteredPoints();
+  const now    = Date.now();
+  const cutoff = now - tfMs[curTf];
+  let pts = allPts.filter(p => p.ts >= cutoff);
+  if (pts.length < 2) pts = allPts.slice(-2);
 
   ctx.clearRect(0, 0, W, H);
 
-  if (data.length < 2) {
+  if (pts.length < 2) {
     ctx.fillStyle = '#2a2a2a';
-    ctx.font = '10px Inter, sans-serif';
+    ctx.font = '10px Inter,sans-serif';
     ctx.textAlign = 'center';
-    ctx.fillText('En attente de données…', W / 2, H / 2);
+    ctx.fillText('En attente de données…', W/2, H/2);
     return;
   }
 
-  const vals   = data.map(d => d.bal);
-  const minVal = Math.min(...vals) * 0.9985;
-  const maxVal = Math.max(...vals) * 1.0015;
-  const range  = maxVal - minVal || 1;
-
-  const pad = { l: 4, r: 4, t: 8, b: 18 };
-  const cW  = W - pad.l - pad.r;
-  const cH  = H - pad.t - pad.b;
-
-  const xOf = i => pad.l + (i / (data.length - 1)) * cW;
-  const yOf = v => pad.t + (1 - (v - minVal) / range) * cH;
-
-  const isUp  = vals[vals.length - 1] >= vals[0];
-  const color = isUp ? '#22c55e' : '#ef4444';
+  const vals   = pts.map(p => p.bal);
+  const minV   = Math.min(...vals) * 0.999;
+  const maxV   = Math.max(...vals) * 1.001;
+  const rng    = maxV - minV || 1;
+  const pad    = { l:4, r:4, t:6, b:16 };
+  const cW     = W - pad.l - pad.r;
+  const cH     = H - pad.t - pad.b;
+  const xOf    = i  => pad.l + (i / (pts.length-1)) * cW;
+  const yOf    = v  => pad.t + (1 - (v - minV) / rng) * cH;
+  const isUp   = vals[vals.length-1] >= vals[0];
+  const color  = isUp ? '#22c55e' : '#ef4444';
 
   // Grid
-  ctx.strokeStyle = '#141414';
-  ctx.lineWidth = 1;
   [0, 0.5, 1].forEach(f => {
     const y = pad.t + f * cH;
-    ctx.beginPath(); ctx.moveTo(pad.l, y); ctx.lineTo(W - pad.r, y); ctx.stroke();
-    const v = maxVal - f * range;
-    ctx.fillStyle = '#2a2a2a';
-    ctx.font = '8px Inter, sans-serif';
-    ctx.textAlign = 'right';
-    ctx.fillText('$' + v.toFixed(2), W - pad.r, y - 2);
+    ctx.strokeStyle = '#141414'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(pad.l, y); ctx.lineTo(W-pad.r, y); ctx.stroke();
+    ctx.fillStyle = '#2a2a2a'; ctx.font = '8px Inter,sans-serif'; ctx.textAlign = 'right';
+    ctx.fillText('$'+(maxV - f*rng).toFixed(2), W-pad.r, y-2);
   });
 
-  // Gradient fill
-  const grad = ctx.createLinearGradient(0, pad.t, 0, H - pad.b);
+  // Fill
+  const grad = ctx.createLinearGradient(0, pad.t, 0, H-pad.b);
   grad.addColorStop(0, isUp ? 'rgba(34,197,94,.15)' : 'rgba(239,68,68,.15)');
   grad.addColorStop(1, 'rgba(0,0,0,0)');
-
-  ctx.beginPath();
-  ctx.moveTo(xOf(0), yOf(vals[0]));
-  for (let i = 1; i < data.length; i++) {
-    const cpx = (xOf(i - 1) + xOf(i)) / 2;
+  ctx.beginPath(); ctx.moveTo(xOf(0), yOf(vals[0]));
+  for (let i = 1; i < pts.length; i++) {
+    const cpx = (xOf(i-1)+xOf(i))/2;
     ctx.bezierCurveTo(cpx, yOf(vals[i-1]), cpx, yOf(vals[i]), xOf(i), yOf(vals[i]));
   }
-  ctx.lineTo(xOf(data.length - 1), H - pad.b);
-  ctx.lineTo(xOf(0), H - pad.b);
-  ctx.closePath();
-  ctx.fillStyle = grad;
-  ctx.fill();
+  ctx.lineTo(xOf(pts.length-1), H-pad.b);
+  ctx.lineTo(xOf(0), H-pad.b);
+  ctx.closePath(); ctx.fillStyle = grad; ctx.fill();
 
   // Line
-  ctx.beginPath();
-  ctx.moveTo(xOf(0), yOf(vals[0]));
-  for (let i = 1; i < data.length; i++) {
-    const cpx = (xOf(i - 1) + xOf(i)) / 2;
+  ctx.beginPath(); ctx.moveTo(xOf(0), yOf(vals[0]));
+  for (let i = 1; i < pts.length; i++) {
+    const cpx = (xOf(i-1)+xOf(i))/2;
     ctx.bezierCurveTo(cpx, yOf(vals[i-1]), cpx, yOf(vals[i]), xOf(i), yOf(vals[i]));
   }
-  ctx.strokeStyle = color;
-  ctx.lineWidth = 1.5;
-  ctx.stroke();
+  ctx.strokeStyle = color; ctx.lineWidth = 1.5; ctx.stroke();
 
   // Last dot
-  ctx.beginPath();
-  ctx.arc(xOf(data.length - 1), yOf(vals[vals.length - 1]), 3, 0, Math.PI * 2);
-  ctx.fillStyle = color;
-  ctx.fill();
+  ctx.beginPath(); ctx.arc(xOf(pts.length-1), yOf(vals[vals.length-1]), 3, 0, Math.PI*2);
+  ctx.fillStyle = color; ctx.fill();
 
   // Time labels
-  if (data.length >= 2) {
-    const fmt = (ts) => {
-      const d = new Date(ts);
-      if (currentTf === '1m') return d.toLocaleTimeString('fr-CA', {hour:'2-digit',minute:'2-digit',second:'2-digit'});
-      if (currentTf === '1h') return d.toLocaleTimeString('fr-CA', {hour:'2-digit',minute:'2-digit'});
-      return d.toLocaleDateString('fr-CA', {day:'2-digit',month:'short'});
+  const fmt = ts => {
+    const d = new Date(ts);
+    return curTf==='1m'||curTf==='1h'
+      ? d.toLocaleTimeString('fr-CA',{hour:'2-digit',minute:'2-digit'})
+      : d.toLocaleDateString('fr-CA',{day:'2-digit',month:'short'});
+  };
+  ctx.fillStyle='#2a2a2a'; ctx.font='8px Inter,sans-serif';
+  ctx.textAlign='left';  ctx.fillText(fmt(pts[0].ts), pad.l, H-3);
+  ctx.textAlign='right'; ctx.fillText(fmt(pts[pts.length-1].ts), W-pad.r, H-3);
+}
+
+// ── LIVE CANDLESTICK CHART ────────────────────────────────────────────
+let candleData    = [];
+let candleSymbol  = '';
+let candleTimer   = null;
+
+async function fetchCandles(symbol) {
+  try {
+    const r = await fetch(`${BOT}/api/candles?symbol=${symbol}`);
+    if (!r.ok) return;
+    const d = await r.json();
+    if (d.candles && d.candles.length) {
+      candleData = d.candles;
+      drawCandles();
+    }
+  } catch(e) {}
+}
+
+function drawCandles() {
+  const cv = document.getElementById('candle-chart');
+  if (!cv || !candleData.length) return;
+  const ctx = cv.getContext('2d');
+  const W   = cv.offsetWidth || 370;
+  const H   = 120;
+  cv.width  = W; cv.height = H;
+  ctx.clearRect(0, 0, W, H);
+
+  const data = candleData.slice(-40); // last 40 candles
+  const pad  = { l:8, r:40, t:8, b:16 };
+  const cW   = W - pad.l - pad.r;
+  const cH   = H - pad.t - pad.b;
+  const n    = data.length;
+
+  const highs  = data.map(c => c.h);
+  const lows   = data.map(c => c.l);
+  const minP   = Math.min(...lows)  * 0.9995;
+  const maxP   = Math.max(...highs) * 1.0005;
+  const rng    = maxP - minP || 1;
+
+  const xOf = i => pad.l + (i + 0.5) * (cW / n);
+  const yOf = v => pad.t + (1 - (v - minP) / rng) * cH;
+  const cW2 = Math.max(2, (cW / n) * 0.6);
+
+  // Grid
+  [0, 0.5, 1].forEach(f => {
+    const y = pad.t + f * cH;
+    ctx.strokeStyle = '#141414'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(pad.l, y); ctx.lineTo(W-pad.r, y); ctx.stroke();
+    ctx.fillStyle = '#2a2a2a'; ctx.font = '8px Inter,sans-serif'; ctx.textAlign = 'left';
+    ctx.fillText(fmtP(maxP - f * rng), W - pad.r + 2, y + 3);
+  });
+
+  // Get position levels
+  const statePos = window._lastPos;
+
+  // Draw candles
+  data.forEach((c, i) => {
+    const isUp = c.c >= c.o;
+    const col  = isUp ? '#22c55e' : '#ef4444';
+    const x    = xOf(i);
+
+    // Wick
+    ctx.strokeStyle = col; ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(x, yOf(c.h));
+    ctx.lineTo(x, yOf(c.l));
+    ctx.stroke();
+
+    // Body
+    const top = yOf(Math.max(c.o, c.c));
+    const bot = yOf(Math.min(c.o, c.c));
+    const ht  = Math.max(1, bot - top);
+    ctx.fillStyle = col;
+    ctx.fillRect(x - cW2/2, top, cW2, ht);
+  });
+
+  // Draw TP, SL, Entry lines if position open
+  if (statePos) {
+    const drawLine = (price, color, label) => {
+      if (!price || price < minP || price > maxP) return;
+      const y = yOf(price);
+      ctx.strokeStyle = color; ctx.lineWidth = 1;
+      ctx.setLineDash([4, 3]);
+      ctx.beginPath(); ctx.moveTo(pad.l, y); ctx.lineTo(W-pad.r, y); ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle = color; ctx.font = 'bold 8px Inter,sans-serif';
+      ctx.textAlign = 'left';
+      ctx.fillText(label, W-pad.r+2, y+3);
     };
-    ctx.fillStyle = '#2a2a2a';
-    ctx.font = '8px Inter, sans-serif';
-    ctx.textAlign = 'left';
-    ctx.fillText(fmt(data[0].ts), pad.l, H - 3);
-    ctx.textAlign = 'right';
-    ctx.fillText(fmt(data[data.length-1].ts), W - pad.r, H - 3);
+    drawLine(statePos.entryPrice, '#c9a84c', 'ENT');
+    drawLine(statePos.tp,         '#22c55e', 'TP');
+    drawLine(statePos.sl,         '#ef4444', 'SL');
+
+    // Current price dot
+    if (statePos.currentPrice) {
+      const y = yOf(statePos.currentPrice);
+      ctx.beginPath(); ctx.arc(xOf(data.length-1), y, 3, 0, Math.PI*2);
+      ctx.fillStyle = '#fff'; ctx.fill();
+    }
   }
+}
+
+function startCandleChart(symbol) {
+  candleSymbol = symbol;
+  document.getElementById('candle-card').style.display = 'block';
+  document.getElementById('candle-sym-label').textContent = symbol + ' · 1 minute';
+  fetchCandles(symbol);
+  if (candleTimer) clearInterval(candleTimer);
+  candleTimer = setInterval(() => fetchCandles(symbol), 15000);
+}
+
+function stopCandleChart() {
+  if (candleTimer) { clearInterval(candleTimer); candleTimer = null; }
+  document.getElementById('candle-card').style.display = 'none';
+  candleData = []; candleSymbol = '';
 }
 
 // ── ANNOUNCE ──────────────────────────────────────────────────────────
@@ -556,7 +819,7 @@ function buildAnn(d) {
   const bal  = d.balance_total || d.balance || 0;
   const sigs = d.signals_checked || 0;
   const scan = d.last_scan
-    ? new Date(d.last_scan).toLocaleTimeString('fr-CA', {hour:'2-digit',minute:'2-digit'})
+    ? new Date(d.last_scan).toLocaleTimeString('fr-CA',{hour:'2-digit',minute:'2-digit'})
     : '—';
   const h   = new Date().getHours();
   const grt = h < 12 ? 'Bon matin' : h < 18 ? 'Bon après-midi' : 'Bonsoir';
@@ -567,140 +830,128 @@ function buildAnn(d) {
     const upnl = pos.unrealizedPnl || 0;
     const ep   = pos.entryPrice || 0;
     const cp   = pos.currentPrice || ep;
-    const pct  = ep > 0 ? ((cp - ep) / ep * 100).toFixed(2) : '0.00';
+    const pct  = ep > 0 ? ((cp-ep)/ep*100).toFixed(2) : '0.00';
     const dir  = pos.direction === 'long' ? 'hausse' : 'baisse';
-    const trail = pos.trailing_active ? ' Le <b>trailing stop</b> protège les gains progressivement.' : '';
-    return `${grt}, David. Position ouverte sur <b>${pos.symbol}</b> à la <b>${dir}</b> — levier <b>x${pos.leverage}</b>. Trade à <b>${pct >= 0 ? '+' : ''}${pct}%</b> soit <b>${upnl >= 0 ? '+' : ''}${upnl.toFixed(4)} USDT</b>. TP: <b>$${fmtP(pos.tp)}</b> · SL: <b>$${fmtP(pos.sl)}</b>.${trail} Solde total: <b>$${bal.toFixed(2)}</b>.`;
+    const trail = pos.trailing_active ? ' <b>Trailing stop actif.</b>' : '';
+    return `${grt}, David. Position sur <b>${pos.symbol}</b> à la <b>${dir}</b> · levier <b>x${pos.leverage}</b>. Actuellement <b>${pct>=0?'+':''}${pct}%</b> soit <b>${upnl>=0?'+':''}${upnl.toFixed(4)} USDT</b>. TP: <b>$${fmtP(pos.tp)}</b> · SL: <b>$${fmtP(pos.sl)}</b>.${trail}`;
   }
 
   const gain = bal - INITIAL;
-  const gainStr = gain >= 0
-    ? `en hausse de <b>+$${gain.toFixed(4)}</b> depuis le départ`
-    : `en baisse de <b>$${Math.abs(gain).toFixed(4)}</b> depuis le départ`;
-  const wr = hist.length
-    ? `Ratio: <b>${wins}/${hist.length}</b> trades gagnants.`
-    : 'Aucun trade fermé encore.';
-
-  return `${grt}, David. Analyse depuis <b>${scan}</b> — <b>${sigs} opportunités</b> étudiées en mode <b>${d.mode || 'Normal'}</b>. En attente d'un signal fort. Solde: <b>$${bal.toFixed(2)} USDT</b>, ${gainStr}. ${wr}`;
+  const wr = hist.length ? `Ratio: <b>${wins}/${hist.length}</b> gagnants.` : 'Aucun trade fermé encore.';
+  return `${grt}, David. Scan depuis <b>${scan}</b> — <b>${sigs}</b> signaux analysés. En attente d'un signal ≥60/100. Solde: <b>$${bal.toFixed(2)}</b> ${gain>=0?'(<b>+$'+gain.toFixed(4)+'</b> depuis le début)':'(<b>$'+gain.toFixed(4)+'</b>)'}. ${wr}`;
 }
 
-// ── EXPLAIN ───────────────────────────────────────────────────────────
 function explainTrade(pos) {
-  if (!pos) return 'Le bot surveille le marché et attend un signal solide avant d\'entrer.';
-  const score   = pos.scoreAtEntry || 0;
-  const dir     = pos.direction === 'long' ? 'hausse' : 'baisse';
-  const sym     = (pos.symbol || '').replace('USDT', '');
-  const reasons = pos.reasons || [];
+  if (!pos) return 'Le bot surveille le marché et attend un signal solide.';
+  const sc = pos.scoreAtEntry || 0;
+  const dir = pos.direction==='long'?'hausse':'baisse';
+  const sym = (pos.symbol||'').replace('USDT','');
   const map = {
-    'RSI très survendu': 'Le prix avait chuté très fort — les vendeurs s\'épuisaient et un rebond était hautement probable.',
-    'RSI survendu':      'Le prix était en zone de survente — la pression vendeuse faiblissait.',
-    'RSI surachat':      'Le prix avait monté trop vite — une correction semblait proche.',
-    'MACD haussier':     'L\'élan s\'inversait à la hausse — les acheteurs reprenaient le contrôle.',
-    'MACD baissier':     'L\'élan s\'inversait à la baisse — les vendeurs prenaient le dessus.',
-    'Volume':            'Le volume explosait — des acheteurs importants entraient massivement.',
-    'Breakout':          'Le prix sortait d\'une zone de calme et démarrait un mouvement fort.',
-    'bas du range':      'Le prix se trouvait en bas de sa fourchette journalière — zone de rebond favorable.',
-    'haut du range':     'Le prix approchait du sommet journalier — zone de résistance.',
-    'Carnet':            'Le carnet d\'ordres montrait beaucoup plus d\'acheteurs que de vendeurs.',
-    'Cascade':           'Des liquidations en cascade signalaient un squeeze imminent.',
-    'BTC':               'Bitcoin bougeait fort — les altcoins allaient suivre avec quelques minutes de retard.',
-    'Funding':           'Le taux de financement favorisait la direction choisie.',
+    'RSI très survendu':'Le prix avait chuté très fort — rebond hautement probable.',
+    'RSI survendu':'Zone de survente — la pression vendeuse faiblissait.',
+    'RSI surachat':'Le prix avait monté trop vite — correction probable.',
+    'MACD haussier':'L\'élan s\'inversait à la hausse — acheteurs en contrôle.',
+    'MACD baissier':'L\'élan s\'inversait à la baisse — vendeurs en contrôle.',
+    'Volume':'Volume explosif — gros acheteurs entrent massivement.',
+    'Breakout':'Sortie de consolidation — mouvement fort en cours.',
+    'bas du range':'Prix en bas de fourchette — zone de rebond favorable.',
+    'haut du range':'Prix en haut de fourchette — zone de résistance.',
+    'Carnet':'Carnet d\'ordres: beaucoup plus d\'acheteurs que vendeurs.',
+    'Cascade':'Liquidations en cascade — squeeze imminent.',
+    'BTC':'BTC bouge fort — les alts vont suivre avec retard.',
+    'Funding':'Funding rate favorable pour la direction choisie.',
   };
+  const reasons = pos.reasons || [];
   const matched = [];
   reasons.forEach(r => {
-    for (const [k, v] of Object.entries(map)) {
+    for (const [k,v] of Object.entries(map))
       if (r.toLowerCase().includes(k.toLowerCase()) && !matched.includes(v)) matched.push(v);
-    }
   });
-  let txt = `Le bot a choisi <b>${sym}</b> pour un pari à la <b>${dir}</b> — score de confiance <b>${score}/100</b>. `;
-  if (matched.length) txt += matched.slice(0, 2).join(' De plus, ') + ' ';
-  txt += `Avec levier x${pos.leverage}, un move de +${(pos.tp_pct||5)}% = <b>+${((pos.tp_pct||5)*(pos.leverage||15)).toFixed(0)}% sur la marge</b>.`;
-  if (pos.trailing_active) txt += ' Le trailing stop protège maintenant les gains accumulés.';
+  let txt = `Pari à la <b>${dir}</b> sur <b>${sym}</b> — confiance <b>${sc}/100</b>. `;
+  if (matched.length) txt += matched.slice(0,2).join(' ') + ' ';
+  txt += `x${pos.leverage}: move de +${pos.tp_pct||5}% = <b>+${((pos.tp_pct||5)*(pos.leverage||15)).toFixed(0)}% sur la marge</b>.`;
   return txt;
 }
 
 function explainClosed(h) {
-  const pnl = h.pnl || 0;
-  const sym = (h.symbol || '').replace('USDT', '');
-  const dir = h.direction === 'long' ? 'hausse' : 'baisse';
-  const res = pnl >= 0
-    ? `Trade conclu avec un gain de <b>+${pnl.toFixed(4)} USDT</b>.`
-    : `Stop loss déclenché — perte limitée à <b>${pnl.toFixed(4)} USDT</b>.`;
-  return `Pari à la <b>${dir}</b> sur <b>${sym}</b> — score ${h.scoreAtEntry||'—'}/100 · ${h.exitReason||'auto'}. ${res}`;
+  const pnl = h.pnl||0;
+  const sym = (h.symbol||'').replace('USDT','');
+  const dir = h.direction==='long'?'hausse':'baisse';
+  const res = pnl>=0
+    ? `Gain de <b>+${pnl.toFixed(4)} USDT</b>.`
+    : `Stop loss — perte limitée à <b>${pnl.toFixed(4)} USDT</b>.`;
+  return `<b>${dir.charAt(0).toUpperCase()+dir.slice(1)}</b> sur <b>${sym}</b> · score ${h.scoreAtEntry||'—'}/100 · ${h.exitReason||'auto'}. ${res}`;
 }
 
 // ── RENDER ────────────────────────────────────────────────────────────
+window._lastPos = null;
+
 function render(d) {
   const bal  = d.balance_total || d.balance || 0;
   const pos  = d.position;
   const hist = d.history || [];
 
+  window._lastPos = pos || null;
   document.getElementById('ann').innerHTML = buildAnn(d);
-  updateChartData(bal);
+  addPt(bal);
 
   const gain = bal - INITIAL;
-  document.getElementById('bal-now').textContent = '$' + bal.toFixed(2);
-  document.getElementById('bal-now').className   = 'bal-amt ' + (gain >= 0 ? 'g' : 'r');
+  document.getElementById('bal-now').textContent = '$'+bal.toFixed(2);
+  document.getElementById('bal-now').className   = 'bal-amt '+(gain>=0?'g':'r');
+
+  const upnl = pos?.unrealizedPnl||0;
+  document.getElementById('bal-tr').textContent  = pos ? (upnl>=0?'+':'')+upnl.toFixed(4) : '—';
+  document.getElementById('bal-tr').className    = 'bgi-v '+(pos?(upnl>=0?'g':'r'):'m');
+  const day = d.today_pnl||0;
+  document.getElementById('bal-day').textContent = (day>=0?'+':'')+day.toFixed(4);
+  document.getElementById('bal-day').className   = 'bgi-v '+(day>=0?'g':'r');
+  const tot = d.total_pnl||0;
+  document.getElementById('bal-tot').textContent = (tot>=0?'+':'')+tot.toFixed(4);
+  document.getElementById('bal-tot').className   = 'bgi-v '+(tot>=0?'g':'r');
+
+  drawCapChart();
 
   if (pos) {
-    const upnl = pos.unrealizedPnl || 0;
-    document.getElementById('bal-tr').textContent = (upnl >= 0 ? '+' : '') + upnl.toFixed(4);
-    document.getElementById('bal-tr').className   = 'bg-v ' + (upnl >= 0 ? 'g' : 'r');
-  } else {
-    document.getElementById('bal-tr').textContent = '—';
-    document.getElementById('bal-tr').className   = 'bg-v m';
-  }
-
-  const day = d.today_pnl || 0;
-  document.getElementById('bal-day').textContent = (day >= 0 ? '+' : '') + day.toFixed(4);
-  document.getElementById('bal-day').className   = 'bg-v ' + (day >= 0 ? 'g' : 'r');
-
-  const tot = d.total_pnl || 0;
-  document.getElementById('bal-tot').textContent = (tot >= 0 ? '+' : '') + tot.toFixed(4);
-  document.getElementById('bal-tot').className   = 'bg-v ' + (tot >= 0 ? 'g' : 'r');
-
-  drawChart();
-
-  if (pos) {
-    const isLong = pos.direction === 'long';
-    document.getElementById('pos-card').className      = 'pos-card ' + (isLong ? 'long' : 'short');
-    document.getElementById('pos-sym').textContent     = pos.symbol || '—';
+    const isLong = pos.direction==='long';
+    document.getElementById('pos-card').className      = 'pos-card '+(isLong?'long':'short');
+    document.getElementById('pos-sym').textContent     = pos.symbol||'—';
     document.getElementById('pos-sym-sub').textContent = `Position ${isLong?'longue':'courte'} · x${pos.leverage} levier`;
-    document.getElementById('pos-badge').textContent   = isLong ? 'LONG' : 'SHORT';
-    document.getElementById('pos-badge').className     = 'pos-badge ' + (isLong ? 'badge-long' : 'badge-short');
-    const upnl = pos.unrealizedPnl || 0;
-    document.getElementById('pos-pnl').textContent = (upnl >= 0 ? '+' : '') + upnl.toFixed(4) + ' USDT';
-    document.getElementById('pos-pnl').className   = 'pnl-val ' + (upnl >= 0 ? 'g' : 'r');
-    document.getElementById('pos-ep').textContent  = '$' + fmtP(pos.entryPrice);
-    document.getElementById('pos-cp').textContent  = pos.currentPrice ? '$' + fmtP(pos.currentPrice) : '—';
-    document.getElementById('pos-tp').textContent  = '$' + fmtP(pos.tp);
-    document.getElementById('pos-sl').textContent  = '$' + fmtP(pos.sl);
-    document.getElementById('pos-lev').textContent    = 'x' + pos.leverage;
-    document.getElementById('pos-margin').textContent = '$' + (pos.margin || 0).toFixed(4);
-    document.getElementById('pos-liq').textContent    = pos.liqPrice ? '$' + fmtP(pos.liqPrice) : '—';
-    document.getElementById('pos-size').textContent   = pos.totalSize
-      ? pos.totalSize + ' ' + (pos.symbol||'').replace('USDT','') : '—';
-    const sc = pos.scoreAtEntry || 0;
-    const fc = sc >= 75 ? 'var(--green)' : sc >= 55 ? 'var(--gold)' : 'var(--red)';
-    document.getElementById('conf-fill').style.width      = sc + '%';
-    document.getElementById('conf-fill').style.background = fc;
-    document.getElementById('conf-num').textContent = sc + ' / 100';
-    document.getElementById('conf-num').className   = sc >= 75 ? 'g' : sc >= 55 ? 'go' : 'r';
+    document.getElementById('pos-badge').textContent   = isLong?'LONG':'SHORT';
+    document.getElementById('pos-badge').className     = 'pos-badge '+(isLong?'badge-long':'badge-short');
+    document.getElementById('pos-pnl').textContent = (upnl>=0?'+':'')+upnl.toFixed(4)+' USDT';
+    document.getElementById('pos-pnl').className   = 'pnl-val '+(upnl>=0?'g':'r');
+    document.getElementById('pos-ep').textContent  = '$'+fmtP(pos.entryPrice);
+    document.getElementById('pos-cp').textContent  = pos.currentPrice?'$'+fmtP(pos.currentPrice):'—';
+    document.getElementById('pos-tp').textContent  = '$'+fmtP(pos.tp);
+    document.getElementById('pos-sl').textContent  = '$'+fmtP(pos.sl);
+    document.getElementById('pos-lev').textContent    = 'x'+pos.leverage;
+    document.getElementById('pos-margin').textContent = '$'+(pos.margin||0).toFixed(4);
+    document.getElementById('pos-liq').textContent    = pos.liqPrice?'$'+fmtP(pos.liqPrice):'—';
+    document.getElementById('pos-size').textContent   = pos.totalSize?pos.totalSize+' '+(pos.symbol||'').replace('USDT',''):'—';
+    document.getElementById('candle-cur-price').textContent = pos.currentPrice?'$'+fmtP(pos.currentPrice):'—';
+    const sc=pos.scoreAtEntry||0;
+    document.getElementById('conf-fill').style.width      = sc+'%';
+    document.getElementById('conf-fill').style.background = sc>=75?'var(--green)':sc>=55?'var(--gold)':'var(--red)';
+    document.getElementById('conf-num').textContent = sc+' / 100';
+    document.getElementById('conf-num').className   = sc>=75?'g':sc>=55?'go':'r';
     document.getElementById('pos-why').innerHTML    = explainTrade(pos);
+    if (candleSymbol !== pos.symbol) startCandleChart(pos.symbol);
+    else drawCandles();
   } else {
     document.getElementById('pos-card').className      = 'pos-card';
     document.getElementById('pos-sym').textContent     = 'En surveillance';
     document.getElementById('pos-sym-sub').textContent = 'Aucune position ouverte';
     document.getElementById('pos-badge').textContent   = 'ATTENTE';
     document.getElementById('pos-badge').className     = 'pos-badge badge-wait';
-    document.getElementById('pos-pnl').textContent = '—';
-    document.getElementById('pos-pnl').className   = 'pnl-val m';
+    document.getElementById('pos-pnl').textContent     = '—';
+    document.getElementById('pos-pnl').className       = 'pnl-val m';
     ['pos-ep','pos-cp','pos-tp','pos-sl','pos-lev','pos-margin','pos-liq','pos-size']
-      .forEach(id => document.getElementById(id).textContent = '—');
-    document.getElementById('conf-fill').style.width = '0%';
-    document.getElementById('conf-num').textContent  = '—';
-    document.getElementById('conf-num').className    = 'm';
-    document.getElementById('pos-why').innerHTML = 'Le bot surveille le marché et attend un signal solide.';
+      .forEach(id => document.getElementById(id).textContent='—');
+    document.getElementById('conf-fill').style.width='0%';
+    document.getElementById('conf-num').textContent='—';
+    document.getElementById('conf-num').className='m';
+    document.getElementById('pos-why').innerHTML='Le bot surveille le marché et attend un signal solide.';
+    stopCandleChart();
   }
 
   renderHist(hist);
@@ -708,20 +959,14 @@ function render(d) {
 
 function renderHist(hist) {
   const el = document.getElementById('hist-list');
-  if (!hist.length) { el.innerHTML = '<div class="empty">Aucun trade fermé pour l\'instant.</div>'; return; }
+  if (!hist.length) { el.innerHTML='<div class="empty">Aucun trade fermé pour l\'instant.</div>'; return; }
   el.innerHTML = hist.map(h => {
-    const pnl  = h.pnl || 0;
-    const win  = pnl >= 0;
-    const date = h.closeTime
-      ? new Date(h.closeTime).toLocaleDateString('fr-CA',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})
-      : '—';
+    const pnl=h.pnl||0, win=pnl>=0;
+    const date=h.closeTime?new Date(h.closeTime).toLocaleDateString('fr-CA',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}):'—';
     return `<div class="hi ${win?'win':'loss'}">
       <div class="hi-head">
-        <div><div class="hi-sym">${h.symbol||'—'}</div><div class="hi-date">${date} · ${h.exitReason||'auto'}</div></div>
-        <div>
-          <div class="hi-pnl ${win?'g':'r'}">${pnl>=0?'+':''}${pnl.toFixed(4)} USDT</div>
-          <div class="hi-pct ${win?'g':'r'}">${(h.pnlPct||0)>=0?'+':''}${(h.pnlPct||0).toFixed(1)}% marge</div>
-        </div>
+        <div><div class="hi-sym">${h.symbol||'—'}</div><div class="hi-date">${date}</div></div>
+        <div><div class="hi-pnl ${win?'g':'r'}">${pnl>=0?'+':''}${pnl.toFixed(4)} USDT</div><div class="hi-pct ${win?'g':'r'}">${(h.pnlPct||0)>=0?'+':''}${(h.pnlPct||0).toFixed(1)}%</div></div>
       </div>
       <div class="hi-cells">
         <div class="hc"><div class="hc-l">Entrée</div><div class="hc-v">$${fmtP(h.entryPrice)}</div></div>
@@ -737,101 +982,72 @@ function renderHist(hist) {
 // ── FETCH ─────────────────────────────────────────────────────────────
 async function fetchState() {
   try {
-    const r = await fetch(BOT + '/api/state', { cache: 'no-store' });
-    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const r = await fetch(BOT+'/api/state',{cache:'no-store'});
+    if (!r.ok) throw new Error('HTTP '+r.status);
     const d = await r.json();
     render(d);
-    document.getElementById('ldot').className      = 'live-dot';
-    document.getElementById('lstatus').textContent = 'En direct';
+    document.getElementById('ldot').className='live-dot';
+    document.getElementById('lstatus').textContent='En direct';
   } catch(e) {
-    document.getElementById('ldot').className      = 'live-dot off';
-    document.getElementById('lstatus').textContent = 'Hors ligne';
+    document.getElementById('ldot').className='live-dot off';
+    document.getElementById('lstatus').textContent='Hors ligne';
   }
 }
 
 // ── CHAT ──────────────────────────────────────────────────────────────
-function botAvatar() {
-  return `<div class="msg-av"><img src="media/bot.png" onerror="this.parentElement.innerHTML='<div class=\\'msg-av-ph\\'>A</div>'" alt="Aivro"></div>`;
-}
-function userAvatar() {
-  return `<div class="msg-av"><img src="media/avatar.png" onerror="this.parentElement.innerHTML='<div class=\\'msg-av-ph\\'>D</div>'" alt="David"></div>`;
-}
+function botAv() { return `<div class="msg-av"><img src="media/bot.png" onerror="this.parentElement.innerHTML='<div class=\\'msg-av-ph\\'>A</div>'" alt="Aivro"></div>`; }
+function myAv()  { return `<div class="msg-av"><img src="media/avatar.png" onerror="this.parentElement.innerHTML='<div class=\\'msg-av-ph\\'>D</div>'" alt="David"></div>`; }
 
 function appendMsg(html) {
-  const msgs = document.getElementById('chat-msgs');
-  msgs.innerHTML += html;
-  msgs.scrollTop = msgs.scrollHeight;
+  const s = document.getElementById('chat-scroll');
+  s.innerHTML += html;
+  s.scrollTop = s.scrollHeight;
 }
 
 function askSug(el) {
   document.getElementById('chat-input').value = el.textContent;
-  document.getElementById('chat-sugs').style.display = 'none';
+  document.getElementById('sugs-wrap').style.display = 'none';
   sendChat();
+}
+
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 100) + 'px';
 }
 
 async function sendChat() {
   const input = document.getElementById('chat-input');
-  const q     = input.value.trim();
+  const q = input.value.trim();
   if (!q) return;
   const btn = document.getElementById('chat-send');
   btn.disabled = true;
-  input.value  = '';
+  input.value = '';
+  input.style.height = 'auto';
 
-  appendMsg(`<div class="msg-row me">
-    ${userAvatar()}
-    <div class="msg-group me">
-      <div class="chat-sender">David</div>
-      <div class="bubble bubble-me">${q}</div>
-    </div>
-  </div>`);
+  appendMsg(`<div class="msg-row me">${myAv()}<div class="msg-group me"><div class="msg-sender">David</div><div class="bubble bubble-me">${q}</div></div></div>`);
 
-  const thinkId = 'think-' + Date.now();
-  appendMsg(`<div class="msg-row" id="${thinkId}">
-    ${botAvatar()}
-    <div class="msg-group">
-      <div class="chat-sender">Aivro</div>
-      <div class="bubble-think">En train de réfléchir…</div>
-    </div>
-  </div>`);
+  const tid = 'think-'+Date.now();
+  appendMsg(`<div class="msg-row" id="${tid}">${botAv()}<div class="msg-group"><div class="msg-sender">Aivro</div><div class="bubble-think">En train de réfléchir…</div></div></div>`);
 
   try {
-    const r = await fetch(BOT + '/api/chat', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ question: q })
-    });
+    const r = await fetch(BOT+'/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({question:q})});
     const d = await r.json();
-    document.getElementById(thinkId)?.remove();
-    const answer = (d.answer || 'Erreur.')
-      .replace(/\*\*(.*?)\*\*/g, '<b>$1</b>')
-      .replace(/\n/g, '<br>');
-    appendMsg(`<div class="msg-row">
-      ${botAvatar()}
-      <div class="msg-group">
-        <div class="chat-sender">Aivro</div>
-        <div class="bubble bubble-bot">${answer}</div>
-      </div>
-    </div>`);
+    document.getElementById(tid)?.remove();
+    const ans = (d.answer||'Erreur.').replace(/\*\*(.*?)\*\*/g,'<b>$1</b>').replace(/\n/g,'<br>');
+    appendMsg(`<div class="msg-row">${botAv()}<div class="msg-group"><div class="msg-sender">Aivro</div><div class="bubble bubble-bot">${ans}</div></div></div>`);
   } catch(e) {
-    document.getElementById(thinkId)?.remove();
-    appendMsg(`<div class="msg-row">
-      ${botAvatar()}
-      <div class="msg-group">
-        <div class="chat-sender">Aivro</div>
-        <div class="bubble bubble-bot">Erreur de connexion.</div>
-      </div>
-    </div>`);
+    document.getElementById(tid)?.remove();
+    appendMsg(`<div class="msg-row">${botAv()}<div class="msg-group"><div class="msg-sender">Aivro</div><div class="bubble bubble-bot">Erreur de connexion.</div></div></div>`);
   }
-
   btn.disabled = false;
 }
 
 // ── UTILS ─────────────────────────────────────────────────────────────
 function fmtP(p) {
-  if (!p || isNaN(p)) return '—';
-  if (p >= 10000) return p.toLocaleString('en-US', { maximumFractionDigits: 2 });
-  if (p >= 1)     return p.toFixed(4);
-  if (p >= 0.01)  return p.toFixed(6);
+  if (!p||isNaN(p)) return '—';
+  if (p>=10000) return p.toLocaleString('en-US',{maximumFractionDigits:2});
+  if (p>=1)     return p.toFixed(4);
+  if (p>=0.01)  return p.toFixed(6);
   return p.toFixed(8);
 }
 
@@ -839,7 +1055,7 @@ function fmtP(p) {
 function init() {
   fetchState();
   setInterval(fetchState, 5000);
-  setInterval(drawChart, 30000);
+  setInterval(drawCapChart, 30000);
 }
 </script>
 </body>
