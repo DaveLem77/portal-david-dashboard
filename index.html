@@ -135,11 +135,23 @@ body{color:var(--text);font-family:'Inter',-apple-system,sans-serif;font-size:13
   display:flex;align-items:center;justify-content:space-between;
   margin-bottom:10px;
 }
+.header-av-wrap{
+  position:relative;width:46px;height:46px;flex-shrink:0;
+}
+.header-av-ring{
+  position:absolute;inset:-4px;border-radius:50%;
+  background:conic-gradient(
+    var(--gold) 0deg,var(--gold2) 60deg,transparent 120deg,
+    transparent 180deg,var(--gold) 240deg,var(--gold2) 300deg,var(--gold) 360deg
+  );
+  animation:spin 4s linear infinite;padding:1.5px;
+}
+.header-av-ring::after{content:'';position:absolute;inset:1.5px;border-radius:50%;background:var(--bg2)}
 .header-av{
-  width:38px;height:38px;border-radius:50%;
+  position:relative;z-index:1;
+  width:46px;height:46px;border-radius:50%;
   overflow:hidden;background:var(--bg3);
-  border:1px solid var(--goldb);flex-shrink:0;
-  position:relative;
+  border:2px solid var(--bg2);
 }
 .header-av img{width:100%;height:100%;object-fit:cover;border-radius:50%}
 .header-av-ph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:var(--gold)}
@@ -265,8 +277,14 @@ body{color:var(--text);font-family:'Inter',-apple-system,sans-serif;font-size:13
 .awrap{padding:14px 18px 0}
 .ann{border-radius:12px;border:1px solid var(--goldb);background:var(--gold3);padding:14px 16px;position:relative;overflow:hidden}
 .ann::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(201,168,76,.6),transparent)}
-.ann-tag{display:flex;align-items:center;gap:6px;font-size:8px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:8px}
-.ann-dot{width:4px;height:4px;border-radius:50%;background:var(--gold);animation:bl 2s infinite}
+.ann-header{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.ann-av{width:32px;height:32px;border-radius:50%;overflow:hidden;flex-shrink:0;border:1px solid var(--goldb);background:var(--bg3)}
+.ann-av img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.ann-av-ph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--gold)}
+.ann-meta{}
+.ann-name{font-size:11px;font-weight:600;color:var(--gold2);margin-bottom:2px}
+.ann-tag{display:flex;align-items:center;gap:5px;font-size:8px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--gold)}
+.ann-dot{width:4px;height:4px;border-radius:50%;background:var(--green);animation:bl 2s infinite}
 .ann-body{font-size:12px;color:#9a8b68;line-height:1.8}
 .ann-body b{color:var(--gold2);font-weight:500}
 
@@ -415,7 +433,15 @@ body{color:var(--text);font-family:'Inter',-apple-system,sans-serif;font-size:13
     <div class="pane on" id="pane-dash">
       <div class="awrap">
         <div class="ann">
-          <div class="ann-tag"><div class="ann-dot"></div>Situation actuelle</div>
+          <div class="ann-header">
+            <div class="ann-av">
+              <img src="media/bot.png" onerror="this.parentElement.innerHTML='<div class='ann-av-ph'>A</div>'" alt="Aivro">
+            </div>
+            <div class="ann-meta">
+              <div class="ann-name">Aivro</div>
+              <div class="ann-tag"><div class="ann-dot"></div>En direct</div>
+            </div>
+          </div>
           <div class="ann-body" id="ann">Connexion…</div>
         </div>
       </div>
@@ -446,11 +472,11 @@ body{color:var(--text);font-family:'Inter',-apple-system,sans-serif;font-size:13
         <div class="chart-head">
           <span class="chart-title-txt">Évolution du capital</span>
           <div class="tf-btns">
-            <button class="tf-btn on" onclick="setTf('1m',this)">1m</button>
+            <button class="tf-btn" onclick="setTf('1m',this)">1m</button>
             <button class="tf-btn" onclick="setTf('1h',this)">1h</button>
             <button class="tf-btn" onclick="setTf('1j',this)">1j</button>
             <button class="tf-btn" onclick="setTf('1M',this)">1M</button>
-            <button class="tf-btn" onclick="setTf('1a',this)">1a</button>
+            <button class="tf-btn on" onclick="setTf('1a',this)">1a</button>
           </div>
         </div>
         <div class="chart-body">
@@ -597,7 +623,7 @@ updateClock();
 
 // ── CAPITAL CHART ─────────────────────────────────────────────────────
 let allPts  = [{ bal: INITIAL, ts: Date.now() }];
-let curTf   = '1m';
+let curTf   = '1a';
 const tfMs  = { '1m':60000,'1h':3600000,'1j':86400000,'1M':2592000000,'1a':31536000000 };
 
 function setTf(tf, el) {
