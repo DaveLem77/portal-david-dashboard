@@ -497,6 +497,14 @@ input[type=number]::-webkit-inner-spin-button { -webkit-appearance:none }
             <div class="pos-cell-label">Marge utilisée</div>
             <div class="pos-cell-val" id="pos-margin">—</div>
           </div>
+          <div class="pos-cell">
+            <div class="pos-cell-label">Prix de liquidation</div>
+            <div class="pos-cell-val r" id="pos-liq">—</div>
+          </div>
+          <div class="pos-cell">
+            <div class="pos-cell-label">Taille position</div>
+            <div class="pos-cell-val" id="pos-size">—</div>
+          </div>
         </div>
         <div class="pos-conf-row">
           <div class="pos-conf-header">
@@ -602,7 +610,11 @@ function buildAnn(d) {
     ? `Le ratio de victoires est de <b>${wins}/${hist.length}</b>.`
     : 'Aucun trade fermé encore.';
 
-  return `${grt}, David. Le bot surveille activement le marché depuis <b>${scan}</b> et a passé en revue <b>${sigs} opportunités</b>. Il est en mode <b>${d.mode || 'Normal'}</b> et attend un signal avec une conviction minimale de 65 sur 100 avant d'engager du capital. Votre solde est <b>$${bal.toFixed(2)} USDT</b>, ${gainStr}. ${wrStr}`;
+  const balTot = d.balance_total || bal;
+  const gainTotStr = balTot >= INITIAL
+    ? `en progression de <b>+$${(balTot-INITIAL).toFixed(4)}</b> depuis le départ`
+    : `en légère baisse de <b>$${(balTot-INITIAL).toFixed(4)}</b> depuis le départ`;
+  return `${grt}, David. Le bot surveille activement le marché depuis <b>${scan}</b> et a passé en revue <b>${sigs} opportunités</b>. Il est en mode <b>${d.mode || 'Normal'}</b> et attend un signal avec une conviction minimale de 60 sur 100 avant d'engager du capital. Votre solde total est <b>$${balTot.toFixed(2)} USDT</b>, ${gainTotStr}. ${wrStr}`;
 }
 
 function explainTrade(pos) {
@@ -657,8 +669,10 @@ function render(d) {
 
   document.getElementById('ann').innerHTML = buildAnn(d);
 
-  document.getElementById('bal-now').textContent = '$' + bal.toFixed(2);
-  const gainTotal = bal - INITIAL;
+  // Solde total = disponible + marge + PNL live
+  const balTotal = d.balance_total || bal;
+  document.getElementById('bal-now').textContent = '$' + balTotal.toFixed(2);
+  const gainTotal = balTotal - INITIAL;
   document.getElementById('bal-now').className = 'balance-amount ' + (gainTotal >= 0 ? 'g' : 'r');
 
   const day = d.today_pnl || 0;
@@ -678,7 +692,7 @@ function render(d) {
     document.getElementById('bal-tr').className = 'bg-val m';
   }
 
-  const pct = (bal / 100000) * 100;
+  const pct = (balTotal / 100000) * 100;
   document.getElementById('prog-pct').textContent = pct.toFixed(4) + '%';
   document.getElementById('prog-fill').style.width = Math.min(100, pct) + '%';
 
@@ -698,6 +712,8 @@ function render(d) {
     document.getElementById('pos-sl').textContent = '$' + fmtP(pos.sl);
     document.getElementById('pos-lev').textContent = 'x' + pos.leverage;
     document.getElementById('pos-margin').textContent = '$' + (pos.margin || 0).toFixed(2);
+    document.getElementById('pos-liq') && (document.getElementById('pos-liq').textContent = pos.liqPrice ? '$' + fmtP(pos.liqPrice) : '—');
+    document.getElementById('pos-size') && (document.getElementById('pos-size').textContent = pos.totalSize ? pos.totalSize + ' ' + (pos.symbol||'').replace('USDT','') : '—');
     const sc = pos.scoreAtEntry || 0;
     const fc = sc >= 75 ? 'var(--green)' : sc >= 55 ? 'var(--gold)' : 'var(--red)';
     const nc = sc >= 75 ? 'g' : sc >= 55 ? 'go' : 'r';
