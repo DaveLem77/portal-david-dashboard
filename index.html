@@ -461,17 +461,11 @@ body{color:var(--text);font-family:'Inter',-apple-system,sans-serif;font-size:13
         </div>
       </div>
 
-      <div class="ctrl-wrap">
-        <button class="ctrl-btn ctrl-btn-pause" id="pause-btn" onclick="askPause()">
-          <span id="pause-icon">⏸</span>
-          <span id="pause-txt">Mettre en pause</span>
+      <div class="bal-card" style="position:relative">
+        <button class="pause-pill" id="pause-btn" onclick="askPause()">
+          <div class="pause-pill-dot" id="pause-pill-dot"></div>
+          <span class="pause-pill-txt" id="pause-txt">Actif</span>
         </button>
-        <button class="ctrl-btn ctrl-btn-close ctrl-btn-close hidden" id="close-trade-btn" onclick="askCloseTrade()">
-          ✕ Fermer le trade
-        </button>
-      </div>
-
-      <div class="bal-card">
         <div class="bal-main">
           <div>
             <div class="bal-lbl">Solde total</div>
@@ -554,6 +548,10 @@ body{color:var(--text);font-family:'Inter',-apple-system,sans-serif;font-size:13
             <div class="why-lbl">Pourquoi ce trade</div>
             <div class="why-txt" id="pos-why">Le bot surveille le marché et attend un signal solide.</div>
           </div>
+          <button class="close-trade-btn" id="close-trade-btn" style="display:none" onclick="askCloseTrade()">
+            <div class="ct-dot"></div>
+            Fermer ce trade
+          </button>
         </div>
       </div>
       <div class="pb14"></div>
@@ -602,18 +600,33 @@ body{color:var(--text);font-family:'Inter',-apple-system,sans-serif;font-size:13
   </div><!-- /content -->
 
 <!-- NIP MODAL -->
-<div class="modal-overlay" id="nip-modal">
+<div class="modal-overlay" id="nip-modal" onclick="if(event.target===this)closeModal()">
   <div class="modal-card">
-    <div class="modal-title" id="modal-title">Confirmation requise</div>
-    <div class="modal-sub" id="modal-sub">Entre ton code pour continuer.</div>
-    <div class="modal-err" id="modal-err"></div>
-    <input class="modal-input" id="modal-nip" type="password" maxlength="6"
-      placeholder="••••" inputmode="numeric"
-      onkeydown="if(event.key==='Enter')confirmModal()">
-    <div class="modal-btns">
-      <button class="modal-cancel" onclick="closeModal()">Annuler</button>
-      <button class="modal-confirm" onclick="confirmModal()">Confirmer</button>
+    <div class="modal-handle"></div>
+    <div class="modal-icon" id="modal-icon">🔐</div>
+    <div class="modal-title" id="modal-title">Confirmation</div>
+    <div class="modal-sub" id="modal-sub">Entre ton code d'accès</div>
+    <div class="modal-dots" id="modal-dots">
+      <div class="modal-dot-circle" id="md0"></div>
+      <div class="modal-dot-circle" id="md1"></div>
+      <div class="modal-dot-circle" id="md2"></div>
+      <div class="modal-dot-circle" id="md3"></div>
     </div>
+    <div class="modal-err" id="modal-err"></div>
+    <div class="modal-numpad">
+      <button class="modal-key" onclick="nipKey('1')">1</button>
+      <button class="modal-key" onclick="nipKey('2')">2</button>
+      <button class="modal-key" onclick="nipKey('3')">3</button>
+      <button class="modal-key" onclick="nipKey('4')">4</button>
+      <button class="modal-key" onclick="nipKey('5')">5</button>
+      <button class="modal-key" onclick="nipKey('6')">6</button>
+      <button class="modal-key" onclick="nipKey('7')">7</button>
+      <button class="modal-key" onclick="nipKey('8')">8</button>
+      <button class="modal-key" onclick="nipKey('9')">9</button>
+      <button class="modal-key modal-key-0" onclick="nipKey('0')">0</button>
+      <button class="modal-key modal-key-del" onclick="nipDel()">⌫</button>
+    </div>
+    <button class="modal-cancel-btn" onclick="closeModal()">Annuler</button>
   </div>
 </div>
 
@@ -1121,29 +1134,60 @@ function fmtP(p) {
 
 
 
-// ── MODAL NIP ─────────────────────────────────────────────────────────
+// ── MODAL NIP — numpad premium ────────────────────────────────────────
 let _modalAction = null;
+let _nipBuffer   = '';
 
-function showModal(title, sub, action) {
+function showModal(title, sub, action, icon) {
   _modalAction = action;
+  _nipBuffer   = '';
   document.getElementById('modal-title').textContent = title;
   document.getElementById('modal-sub').textContent   = sub;
+  document.getElementById('modal-icon').textContent  = icon || '🔐';
   document.getElementById('modal-err').textContent   = '';
-  document.getElementById('modal-nip').value         = '';
+  updateNipDots();
   document.getElementById('nip-modal').classList.add('show');
-  setTimeout(() => document.getElementById('modal-nip').focus(), 100);
 }
 
 function closeModal() {
   document.getElementById('nip-modal').classList.remove('show');
   _modalAction = null;
+  _nipBuffer   = '';
+  updateNipDots();
+}
+
+function nipKey(k) {
+  if (_nipBuffer.length >= 4) return;
+  _nipBuffer += k;
+  updateNipDots();
+  document.getElementById('modal-err').textContent = '';
+  if (_nipBuffer.length === 4) {
+    setTimeout(confirmModal, 80);
+  }
+}
+
+function nipDel() {
+  _nipBuffer = _nipBuffer.slice(0, -1);
+  updateNipDots();
+}
+
+function updateNipDots() {
+  for (let i = 0; i < 4; i++) {
+    const el = document.getElementById('md' + i);
+    if (el) el.className = 'modal-dot-circle' + (i < _nipBuffer.length ? ' filled' : '');
+  }
 }
 
 function confirmModal() {
-  const nip = document.getElementById('modal-nip').value;
-  if (nip !== PWD) {
-    document.getElementById('modal-err').textContent = 'Code incorrect.';
-    document.getElementById('modal-nip').value = '';
+  if (_nipBuffer !== PWD) {
+    document.getElementById('modal-err').textContent = 'Code incorrect';
+    _nipBuffer = '';
+    updateNipDots();
+    // Shake animation
+    const card = document.querySelector('.modal-card');
+    card.style.transform = 'translateX(-8px)';
+    setTimeout(() => { card.style.transform = 'translateX(8px)'; }, 80);
+    setTimeout(() => { card.style.transform = 'translateX(0)'; }, 160);
     return;
   }
   closeModal();
@@ -1178,17 +1222,15 @@ async function doPause(action) {
 }
 
 function updatePauseBtn() {
-  const btn  = document.getElementById('pause-btn');
-  const icon = document.getElementById('pause-icon');
-  const txt  = document.getElementById('pause-txt');
+  const btn = document.getElementById('pause-btn');
+  const txt = document.getElementById('pause-txt');
+  if (!btn) return;
   if (_isPaused) {
     btn.classList.add('paused');
-    icon.textContent = '▶';
-    txt.textContent  = 'Réactiver le bot';
+    txt.textContent = 'En pause';
   } else {
     btn.classList.remove('paused');
-    icon.textContent = '⏸';
-    txt.textContent  = 'Mettre en pause';
+    txt.textContent = 'Actif';
   }
 }
 
@@ -1220,6 +1262,7 @@ async function doCloseTrade() {
 
 // ── FIX HISTORY — injecter le trade QUSDT manquant au démarrage ──────
 async function injectMissingTrade() {
+  if (localStorage.getItem('qusdt_done')) return;
   const record = {
     symbol:       'QUSDT',
     direction:    'short',
