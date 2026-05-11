@@ -1158,7 +1158,7 @@ function askPause() {
   const title  = _isPaused ? 'Réactiver le bot' : 'Mettre en pause';
   const sub    = _isPaused
     ? 'Le bot va reprendre le scan et le trading automatiquement.'
-    : 'Le bot arrêtera de scanner et d'ouvrir des positions. Les positions existantes restent ouvertes.';
+    : "Le bot arrêtera de scanner et d'ouvrir des positions. Les positions existantes restent ouvertes.";
   showModal(title, sub, () => doPause(action));
 }
 
@@ -1196,7 +1196,7 @@ function updatePauseBtn() {
 function askCloseTrade() {
   showModal(
     'Fermer le trade',
-    'Le trade sera fermé immédiatement au prix du marché sur Bitget et enregistré dans l'historique.',
+    "Le trade sera fermé immédiatement au prix du marché sur Bitget et enregistré dans l'historique.",
     doCloseTrade
   );
 }
