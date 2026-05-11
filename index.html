@@ -127,16 +127,21 @@ body{color:var(--text);font-family:'Inter',-apple-system,sans-serif;font-size:13
 /* ── HEADER ── */
 .header{
   flex-shrink:0;
-  background:var(--bg2);
-  border-bottom:1px solid var(--b);
-  padding:14px 18px 12px;
+  background:linear-gradient(180deg,#0e0c09 0%,var(--bg2) 100%);
+  border-bottom:1px solid rgba(201,168,76,.15);
+  padding:12px 18px 11px;
+  position:relative;overflow:hidden;
+}
+.header::before{
+  content:'';position:absolute;bottom:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(201,168,76,.3),transparent);
 }
 .header-top{
-  display:flex;align-items:center;justify-content:space-between;
-  margin-bottom:10px;
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
 }
+/* Avatar avec ring */
 .header-av-wrap{
-  position:relative;width:46px;height:46px;flex-shrink:0;
+  position:relative;width:50px;height:50px;flex-shrink:0;
 }
 .header-av-ring{
   position:absolute;inset:-4px;border-radius:50%;
@@ -144,29 +149,39 @@ body{color:var(--text);font-family:'Inter',-apple-system,sans-serif;font-size:13
     var(--gold) 0deg,var(--gold2) 60deg,transparent 120deg,
     transparent 180deg,var(--gold) 240deg,var(--gold2) 300deg,var(--gold) 360deg
   );
-  animation:spin 4s linear infinite;padding:1.5px;
+  animation:spin 4s linear infinite;
 }
-.header-av-ring::after{content:'';position:absolute;inset:1.5px;border-radius:50%;background:var(--bg2)}
+.header-av-ring::after{
+  content:'';position:absolute;inset:2px;border-radius:50%;
+  background:linear-gradient(180deg,#0e0c09,var(--bg2));
+}
 .header-av{
   position:relative;z-index:1;
-  width:46px;height:46px;border-radius:50%;
+  width:50px;height:50px;border-radius:50%;
   overflow:hidden;background:var(--bg3);
-  border:2px solid var(--bg2);
+  border:2px solid #0e0c09;
 }
 .header-av img{width:100%;height:100%;object-fit:cover;border-radius:50%}
-.header-av-ph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:var(--gold)}
-.header-center{text-align:center;flex:1}
+.header-av-ph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:var(--gold)}
+/* Center */
+.header-center{flex:1;text-align:center}
+.header-brand{
+  display:flex;align-items:center;justify-content:center;gap:6px;
+  margin-bottom:3px;
+}
+.header-brand-line{width:24px;height:1px;background:linear-gradient(90deg,transparent,rgba(201,168,76,.4))}
+.header-brand-line.r{background:linear-gradient(90deg,rgba(201,168,76,.4),transparent)}
 .header-title{
-  font-size:10px;font-weight:700;letter-spacing:3px;
-  color:#fff;text-transform:uppercase;
+  font-size:9px;font-weight:700;letter-spacing:4px;
+  color:var(--gold);text-transform:uppercase;
 }
 .header-clock{
-  font-size:28px;font-weight:300;color:#fff;
-  letter-spacing:-1.5px;line-height:1;
+  font-size:26px;font-weight:200;color:#fff;
+  letter-spacing:-1px;line-height:1;
   font-variant-numeric:tabular-nums;
-  margin-top:2px;
 }
-.header-right{text-align:right}
+/* Right */
+.header-right{text-align:right;flex-shrink:0}
 .header-live{display:flex;align-items:center;gap:5px;justify-content:flex-end;margin-bottom:4px}
 .live-dot{width:5px;height:5px;border-radius:50%;background:var(--green);animation:bl 2.5s infinite}
 .live-dot.off{background:var(--red);animation:none}
@@ -446,6 +461,16 @@ body{color:var(--text);font-family:'Inter',-apple-system,sans-serif;font-size:13
         </div>
       </div>
 
+      <div class="ctrl-wrap">
+        <button class="ctrl-btn ctrl-btn-pause" id="pause-btn" onclick="askPause()">
+          <span id="pause-icon">⏸</span>
+          <span id="pause-txt">Mettre en pause</span>
+        </button>
+        <button class="ctrl-btn ctrl-btn-close ctrl-btn-close hidden" id="close-trade-btn" onclick="askCloseTrade()">
+          ✕ Fermer le trade
+        </button>
+      </div>
+
       <div class="bal-card">
         <div class="bal-main">
           <div>
@@ -575,6 +600,23 @@ body{color:var(--text);font-family:'Inter',-apple-system,sans-serif;font-size:13
     </div>
 
   </div><!-- /content -->
+
+<!-- NIP MODAL -->
+<div class="modal-overlay" id="nip-modal">
+  <div class="modal-card">
+    <div class="modal-title" id="modal-title">Confirmation requise</div>
+    <div class="modal-sub" id="modal-sub">Entre ton code pour continuer.</div>
+    <div class="modal-err" id="modal-err"></div>
+    <input class="modal-input" id="modal-nip" type="password" maxlength="6"
+      placeholder="••••" inputmode="numeric"
+      onkeydown="if(event.key==='Enter')confirmModal()">
+    <div class="modal-btns">
+      <button class="modal-cancel" onclick="closeModal()">Annuler</button>
+      <button class="modal-confirm" onclick="confirmModal()">Confirmer</button>
+    </div>
+  </div>
+</div>
+
 </div><!-- /app -->
 
 <script>
@@ -1077,8 +1119,135 @@ function fmtP(p) {
   return p.toFixed(8);
 }
 
+
+
+// ── MODAL NIP ─────────────────────────────────────────────────────────
+let _modalAction = null;
+
+function showModal(title, sub, action) {
+  _modalAction = action;
+  document.getElementById('modal-title').textContent = title;
+  document.getElementById('modal-sub').textContent   = sub;
+  document.getElementById('modal-err').textContent   = '';
+  document.getElementById('modal-nip').value         = '';
+  document.getElementById('nip-modal').classList.add('show');
+  setTimeout(() => document.getElementById('modal-nip').focus(), 100);
+}
+
+function closeModal() {
+  document.getElementById('nip-modal').classList.remove('show');
+  _modalAction = null;
+}
+
+function confirmModal() {
+  const nip = document.getElementById('modal-nip').value;
+  if (nip !== PWD) {
+    document.getElementById('modal-err').textContent = 'Code incorrect.';
+    document.getElementById('modal-nip').value = '';
+    return;
+  }
+  closeModal();
+  if (_modalAction) _modalAction();
+}
+
+// ── PAUSE ──────────────────────────────────────────────────────────────
+let _isPaused = false;
+
+function askPause() {
+  const action = _isPaused ? 'resume' : 'pause';
+  const title  = _isPaused ? 'Réactiver le bot' : 'Mettre en pause';
+  const sub    = _isPaused
+    ? 'Le bot va reprendre le scan et le trading automatiquement.'
+    : 'Le bot arrêtera de scanner et d'ouvrir des positions. Les positions existantes restent ouvertes.';
+  showModal(title, sub, () => doPause(action));
+}
+
+async function doPause(action) {
+  try {
+    const r = await fetch(BOT + '/api/pause', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action })
+    });
+    const d = await r.json();
+    if (d.ok) {
+      _isPaused = d.paused;
+      updatePauseBtn();
+    }
+  } catch(e) {}
+}
+
+function updatePauseBtn() {
+  const btn  = document.getElementById('pause-btn');
+  const icon = document.getElementById('pause-icon');
+  const txt  = document.getElementById('pause-txt');
+  if (_isPaused) {
+    btn.classList.add('paused');
+    icon.textContent = '▶';
+    txt.textContent  = 'Réactiver le bot';
+  } else {
+    btn.classList.remove('paused');
+    icon.textContent = '⏸';
+    txt.textContent  = 'Mettre en pause';
+  }
+}
+
+// ── CLOSE TRADE ────────────────────────────────────────────────────────
+function askCloseTrade() {
+  showModal(
+    'Fermer le trade',
+    'Le trade sera fermé immédiatement au prix du marché sur Bitget et enregistré dans l'historique.',
+    doCloseTrade
+  );
+}
+
+async function doCloseTrade() {
+  const btn = document.getElementById('close-trade-btn');
+  btn.disabled = true;
+  try {
+    const r = await fetch(BOT + '/api/close-trade', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({})
+    });
+    const d = await r.json();
+    if (d.ok) {
+      setTimeout(fetchState, 2000);
+    }
+  } catch(e) {}
+  btn.disabled = false;
+}
+
+// ── FIX HISTORY — injecter le trade QUSDT manquant au démarrage ──────
+async function injectMissingTrade() {
+  const record = {
+    symbol:       'QUSDT',
+    direction:    'short',
+    entryPrice:   0.018560,
+    closePrice:   0.018508,
+    pnl:          3.98588871,
+    pnlPct:       4.20,
+    leverage:     15,
+    scoreAtEntry: 68,
+    margin:       84.92,
+    invested:     84.92,
+    exitReason:   'Fermé manuellement',
+    openTime:     '2026-05-10T19:00:00.000Z',
+    closeTime:    '2026-05-10T20:28:35.000Z',
+    reasons:      ['RSI surachat', 'MACD baissier', 'Volume élevé'],
+  };
+  try {
+    await fetch(BOT + '/api/fix-history', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ record, balance: 98.34 })
+    });
+  } catch(e) {}
+}
+
 // ── INIT ──────────────────────────────────────────────────────────────
 function init() {
+  injectMissingTrade();
   fetchState();
   setInterval(fetchState, 5000);
   setInterval(drawCapChart, 30000);
