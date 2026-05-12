@@ -217,6 +217,120 @@ body{color:var(--tx);font-family:'Inter',-apple-system,sans-serif;font-size:13px
 .hi-why b{color:var(--t2);font-weight:500}
 .empty{text-align:center;padding:28px 20px;font-size:11px;color:var(--t3);background:var(--bg2);border:1px solid var(--b);border-radius:12px}
 
+
+
+/* ── SCANNER EN SURVEILLANCE ── */
+.scanner-wrap{
+  margin:10px 18px 0;
+  border-radius:12px;
+  border:1px solid var(--b);
+  background:var(--bg2);
+  overflow:hidden;
+}
+.scanner-top{
+  padding:12px 14px 10px;
+  border-bottom:1px solid var(--b);
+  display:flex;align-items:center;justify-content:space-between;
+}
+.scanner-title{
+  font-size:9px;font-weight:600;letter-spacing:2px;
+  text-transform:uppercase;color:var(--t3);
+  display:flex;align-items:center;gap:7px;
+}
+.scanner-rdot{
+  width:5px;height:5px;border-radius:50%;
+  background:var(--go);animation:bl 1.5s infinite;
+}
+.scanner-count{font-size:10px;color:var(--t2)}
+.scanner-stage{
+  height:220px;position:relative;overflow:hidden;
+  background:var(--bg);
+}
+/* central ring */
+.scanner-ring{
+  position:absolute;top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  width:80px;height:80px;border-radius:50%;
+  border:1px solid rgba(201,168,76,.15);
+  display:flex;align-items:center;justify-content:center;
+}
+.scanner-ring::before{
+  content:'';position:absolute;inset:-12px;border-radius:50%;
+  border:1px solid rgba(201,168,76,.07);
+}
+.scanner-ring::after{
+  content:'';position:absolute;inset:-24px;border-radius:50%;
+  border:1px solid rgba(201,168,76,.04);
+}
+.scanner-eye{
+  width:28px;height:28px;
+  display:flex;align-items:center;justify-content:center;
+}
+.scanner-eye svg{animation:scanner-pulse 2s ease-in-out infinite}
+@keyframes scanner-pulse{
+  0%,100%{opacity:.4;transform:scale(1)}
+  50%{opacity:1;transform:scale(1.1)}
+}
+/* cards défilant */
+.scanner-cards{
+  position:absolute;inset:0;
+  display:flex;flex-direction:column;
+  gap:6px;padding:10px 12px;
+  pointer-events:none;
+}
+.s-card{
+  display:flex;align-items:center;gap:10px;
+  padding:8px 12px;border-radius:8px;
+  border:1px solid var(--b);
+  background:var(--bg2);
+  position:absolute;width:calc(100% - 24px);
+  transition:all .4s cubic-bezier(.4,0,.2,1);
+  opacity:0;
+}
+.s-card.visible{opacity:1}
+.s-card.hot-long{border-color:rgba(34,197,94,.25);background:rgba(34,197,94,.04)}
+.s-card.hot-short{border-color:rgba(239,68,68,.2);background:rgba(239,68,68,.03)}
+.s-card.checking{border-color:rgba(201,168,76,.2);background:rgba(201,168,76,.03)}
+/* crypto icon circle */
+.s-icon{
+  width:30px;height:30px;border-radius:50%;
+  flex-shrink:0;display:flex;align-items:center;
+  justify-content:center;font-size:11px;font-weight:700;
+  border:1px solid var(--b2);
+}
+.s-info{flex:1;min-width:0}
+.s-sym{font-size:12px;font-weight:600;color:#fff;letter-spacing:-.2px}
+.s-detail{font-size:10px;color:var(--t2);margin-top:1px}
+.s-score-wrap{text-align:right;flex-shrink:0}
+.s-score{font-size:14px;font-weight:700;letter-spacing:-.5px}
+.s-score-lbl{font-size:8px;color:var(--t3);letter-spacing:.5px;margin-top:1px}
+/* bar de score */
+.s-bar-wrap{
+  padding:0 12px 10px;
+}
+.s-bar-track{
+  height:2px;background:var(--b);border-radius:1px;overflow:hidden;
+}
+.s-bar-fill{
+  height:100%;border-radius:1px;
+  background:linear-gradient(90deg,var(--t3),var(--go));
+  transition:width .6s ease;
+}
+/* bottom ticker */
+.scanner-bottom{
+  padding:8px 12px;border-top:1px solid var(--b);
+  display:flex;gap:6px;overflow:hidden;
+}
+.s-tick{
+  font-size:9px;padding:3px 8px;border-radius:4px;
+  border:1px solid var(--b2);color:var(--t3);
+  white-space:nowrap;flex-shrink:0;
+  transition:all .3s;
+}
+.s-tick.g{border-color:rgba(34,197,94,.3);color:var(--gr)}
+.s-tick.r{border-color:rgba(239,68,68,.25);color:var(--re)}
+.s-tick.go{border-color:var(--gob);color:var(--go)}
+
 /* NIP MODAL */
 #nip-modal{position:fixed;inset:0;z-index:900;background:rgba(0,0,0,.55);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center}
 #nip-modal.open{display:flex}
@@ -353,8 +467,23 @@ body{color:var(--tx);font-family:'Inter',-apple-system,sans-serif;font-size:13px
         <div class="ch-body"><canvas id="evo" height="90"></canvas></div>
       </div>
 
-      <!-- POSITION -->
-      <div class="sec">
+      <!-- SCANNER (visible quand pas de position) -->
+      <div class="scanner-wrap" id="scanner-wrap">
+        <div class="scanner-top">
+          <div class="scanner-title">
+            <div class="scanner-rdot"></div>
+            Analyse du marché
+          </div>
+          <span class="scanner-count" id="scan-count">—</span>
+        </div>
+        <div class="scanner-stage" id="scanner-stage">
+          <!-- cards animées injectées par JS -->
+        </div>
+        <div class="scanner-bottom" id="scan-bottom"></div>
+      </div>
+
+      <!-- POSITION (visible quand trade actif) -->
+      <div class="sec" id="pos-section" style="display:none">
         <div class="sec-t">Position en cours</div>
         <div class="pos-card" id="pos-card">
           <div class="pos-hdr">
@@ -398,6 +527,7 @@ body{color:var(--tx);font-family:'Inter',-apple-system,sans-serif;font-size:13px
           <button class="close-lnk" id="close-lnk" onclick="askClose()">Fermer ce trade</button>
         </div>
       </div>
+      </div><!-- /pos-section -->
       <div class="pb"></div>
     </div><!-- /dash -->
 
@@ -870,6 +1000,8 @@ function render(d) {
   if (d.paused !== undefined) { _paused = d.paused; updateBotDot(); }
 
   // Position
+  showScanner(!pos);
+
   if (pos) {
     const isLong = pos.direction === 'long';
     document.getElementById('pos-card').className = 'pos-card ' + (isLong ? 'long' : 'short');
@@ -1002,6 +1134,208 @@ async function sendChat() {
   btn.disabled = false;
 }
 
+
+
+// ── SCANNER ANIMATION ─────────────────────────────────────────────────
+const CRYPTOS = [
+  {sym:'BTC',  color:'#F7931A', bg:'rgba(247,147,26,.12)'},
+  {sym:'ETH',  color:'#627EEA', bg:'rgba(98,126,234,.12)'},
+  {sym:'SOL',  color:'#9945FF', bg:'rgba(153,69,255,.12)'},
+  {sym:'XRP',  color:'#346AA9', bg:'rgba(52,106,169,.12)'},
+  {sym:'BNB',  color:'#F3BA2F', bg:'rgba(243,186,47,.12)'},
+  {sym:'DOGE', color:'#C2A633', bg:'rgba(194,166,51,.12)'},
+  {sym:'ADA',  color:'#3CC8C8', bg:'rgba(60,200,200,.12)'},
+  {sym:'TON',  color:'#0088CC', bg:'rgba(0,136,204,.12)'},
+  {sym:'AVAX', color:'#E84142', bg:'rgba(232,65,66,.12)'},
+  {sym:'DOT',  color:'#E6007A', bg:'rgba(230,0,122,.12)'},
+  {sym:'LINK', color:'#2A5ADA', bg:'rgba(42,90,218,.12)'},
+  {sym:'INJ',  color:'#00BFFF', bg:'rgba(0,191,255,.12)'},
+  {sym:'ARB',  color:'#28A0F0', bg:'rgba(40,160,240,.12)'},
+  {sym:'OP',   color:'#FF0420', bg:'rgba(255,4,32,.12)'},
+  {sym:'SUI',  color:'#6FBCF0', bg:'rgba(111,188,240,.12)'},
+  {sym:'PEPE', color:'#3CB371', bg:'rgba(60,179,113,.12)'},
+  {sym:'WIF',  color:'#9B59B6', bg:'rgba(155,89,182,.12)'},
+  {sym:'NEAR', color:'#00C08B', bg:'rgba(0,192,139,.12)'},
+  {sym:'APT',  color:'#6B7CFF', bg:'rgba(107,124,255,.12)'},
+  {sym:'SKYAI',color:'#c9a84c', bg:'rgba(201,168,76,.12)'},
+];
+
+let _scanQueue  = [];
+let _scanTimer  = null;
+let _scanTickers = [];
+let _scanIdx    = 0;
+let _scanCards  = [];
+const MAX_CARDS = 3;
+
+function initScannerAnim() {
+  const stage = document.getElementById('scanner-stage');
+  if (!stage) return;
+  stage.innerHTML = '';
+  _scanCards = [];
+  for (let i = 0; i < MAX_CARDS; i++) {
+    const el = document.createElement('div');
+    el.className = 'is-card';
+    el.style.cssText = `top:${10 + i * 68}px`;
+    stage.appendChild(el);
+    _scanCards.push(el);
+  }
+}
+
+function getRandomScore() { return 20 + Math.floor(Math.random() * 65); }
+function getRandomDir()   { return Math.random() > .5 ? 'long' : 'short'; }
+function getRandomDetail(score, dir) {
+  const bulls = ['RSI survendu', 'MACD haussier', 'Volume spike', 'Breakout', 'BTC momentum'];
+  const bears = ['RSI surachat', 'MACD baissier', 'Résistance', 'Volume faible', 'Short squeeze'];
+  const arr   = dir === 'long' ? bulls : bears;
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+
+function renderScanCard(el, crypto, score, dir, detail) {
+  const isHot   = score >= 62;
+  const isMed   = score >= 45;
+  const barW    = Math.round(score);
+  const barCol  = isHot
+    ? (dir === 'long' ? '#22c55e' : '#ef4444')
+    : isMed ? '#c9a84c' : '#2e2e2e';
+  const scoreCol = isHot
+    ? (dir === 'long' ? '#22c55e' : '#ef4444')
+    : isMed ? '#c9a84c' : '#5a5a5a';
+  const cardCls = isHot
+    ? (dir === 'long' ? 'hot-long' : 'hot-short')
+    : isMed ? 'checking' : '';
+  const arrow = dir === 'long' ? '↑' : '↓';
+  const arrowCol = dir === 'long' ? '#22c55e' : '#ef4444';
+
+  el.className = `s-card ${cardCls}`;
+  el.innerHTML = `
+    <div class="s-icon" style="background:${crypto.bg};border-color:${crypto.color}22;color:${crypto.color}">
+      ${crypto.sym.slice(0,3)}
+    </div>
+    <div class="s-info">
+      <div class="s-sym">${crypto.sym}USDT</div>
+      <div class="s-detail">${detail}</div>
+    </div>
+    <div class="s-score-wrap">
+      <div class="s-score" style="color:${scoreCol}">${score}</div>
+      <div class="s-score-lbl" style="color:${isHot ? arrowCol : '#2e2e2e'}">${isHot ? arrow + ' ' + dir.toUpperCase() : '/ 100'}</div>
+    </div>
+  `;
+
+  // Animate bar at bottom of card
+  el.insertAdjacentHTML('beforeend', `
+    <div style="position:absolute;bottom:0;left:0;right:0;height:2px;background:var(--b)">
+      <div style="height:100%;width:0;background:${barCol};transition:width .8s ease;border-radius:1px" class="score-bar"></div>
+    </div>
+  `);
+  setTimeout(() => {
+    const bar = el.querySelector('.score-bar');
+    if (bar) bar.style.width = barW + '%';
+  }, 50);
+}
+
+function tickScanner() {
+  const stage = document.getElementById('scanner-stage');
+  if (!stage) return;
+
+  // Pick random crypto
+  const crypto = CRYPTOS[_scanIdx % CRYPTOS.length];
+  _scanIdx++;
+  const score  = getRandomScore();
+  const dir    = getRandomDir();
+  const detail = getRandomDetail(score, dir);
+
+  // Rotate cards: shift up, add new at bottom
+  const cards = stage.querySelectorAll('.s-card');
+  cards.forEach((c, i) => {
+    if (i < cards.length - 1) {
+      const next = cards[i + 1];
+      c.innerHTML  = next.innerHTML;
+      c.className  = next.className;
+      c.style.opacity = '0.5';
+      setTimeout(() => { if (c) c.style.opacity = '0.7'; }, 100);
+    }
+  });
+
+  // Last card = new result
+  const last = cards[cards.length - 1];
+  if (last) {
+    last.style.opacity = '0';
+    last.style.transform = 'translateX(20px)';
+    renderScanCard(last, crypto, score, dir, detail);
+    last.className += ' visible';
+    setTimeout(() => {
+      last.style.opacity = '1';
+      last.style.transform = 'translateX(0)';
+      last.style.transition = 'all .35s cubic-bezier(.4,0,.2,1)';
+    }, 30);
+  }
+
+  // Update hot tickers
+  if (score >= 55) {
+    _scanTickers.unshift({ sym: crypto.sym, score, dir });
+    if (_scanTickers.length > 6) _scanTickers.pop();
+  }
+  updateScanTickers();
+
+  // Update count
+  const cnt = document.getElementById('scan-count');
+  if (cnt) cnt.textContent = _scanIdx + ' paires';
+}
+
+function updateScanTickers() {
+  const el = document.getElementById('scan-bottom');
+  if (!el) return;
+  el.innerHTML = _scanTickers.map(t => {
+    const cls = t.score >= 62
+      ? (t.dir === 'long' ? 'g' : 'r')
+      : 'go';
+    const arrow = t.dir === 'long' ? '↑' : '↓';
+    return `<div class="s-tick ${cls}">${t.sym} ${arrow}${t.score}</div>`;
+  }).join('');
+}
+
+function startScanner() {
+  const stage = document.getElementById('scanner-stage');
+  if (!stage) return;
+
+  // Init 3 cards
+  stage.innerHTML = '';
+  for (let i = 0; i < MAX_CARDS; i++) {
+    const el = document.createElement('div');
+    el.className = 's-card';
+    el.style.cssText = `top:${10 + i * 68}px;width:calc(100% - 24px);left:12px`;
+    const crypto  = CRYPTOS[(i * 7) % CRYPTOS.length];
+    const score   = getRandomScore();
+    const dir     = getRandomDir();
+    renderScanCard(el, crypto, score, dir, getRandomDetail(score, dir));
+    el.style.opacity = (i === 0 ? '1' : i === 1 ? '0.7' : '0.45');
+    stage.appendChild(el);
+  }
+
+  if (_scanTimer) clearInterval(_scanTimer);
+  _scanTimer = setInterval(tickScanner, 1200);
+}
+
+function stopScanner() {
+  if (_scanTimer) { clearInterval(_scanTimer); _scanTimer = null; }
+  _scanIdx = 0; _scanTickers = [];
+}
+
+function showScanner(show) {
+  const sw = document.getElementById('scanner-wrap');
+  const ps = document.getElementById('pos-section');
+  if (!sw || !ps) return;
+  if (show) {
+    sw.style.display = 'block';
+    ps.style.display = 'none';
+    startScanner();
+  } else {
+    sw.style.display = 'none';
+    ps.style.display = 'block';
+    stopScanner();
+  }
+}
+
 // ── INJECT MISSING QUSDT TRADE ────────────────────────────────────────
 async function injectQusdt() {
   if (localStorage.getItem('qusdt_done')) return;
@@ -1042,6 +1376,7 @@ function init() {
   fetchState();
   setInterval(fetchState, 5000);
   setInterval(drawCap, 30000);
+  setTimeout(() => showScanner(true), 300);
 }
 </script>
 </body>
