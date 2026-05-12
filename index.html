@@ -226,6 +226,7 @@ body{color:var(--tx);font-family:'Inter',-apple-system,sans-serif;font-size:13px
   border:1px solid var(--b);
   background:var(--bg2);
   overflow:hidden;
+  display:none;
 }
 .scanner-top{
   padding:12px 14px 10px;
@@ -1324,16 +1325,18 @@ function stopScanner() {
 function showScanner(show) {
   const sw = document.getElementById('scanner-wrap');
   const ps = document.getElementById('pos-section');
-  if (!sw || !ps) return;
+  if (!sw) return;
   if (show) {
     sw.style.display = 'block';
-    ps.style.display = 'none';
+    if (ps) ps.style.display = 'none';
     startScanner();
   } else {
     sw.style.display = 'none';
-    ps.style.display = 'block';
+    if (ps) ps.style.display = 'block';
     stopScanner();
   }
+  // Force repaint
+  sw.offsetHeight;
 }
 
 // ── INJECT MISSING QUSDT TRADE ────────────────────────────────────────
