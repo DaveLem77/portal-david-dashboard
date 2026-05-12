@@ -82,6 +82,7 @@ body{color:var(--tx);font-family:'Inter',-apple-system,sans-serif;font-size:13px
 .content{flex:1;overflow:hidden;position:relative}
 .pane{display:none;position:absolute;inset:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:env(safe-area-inset-bottom,0)}
 .pane.on{display:block}
+#pane-chat.on{display:flex!important}
 /* Chat pane special */
 #pane-chat{display:none;flex-direction:column;position:absolute;inset:0}
 #pane-chat.on{display:flex}
@@ -621,14 +622,26 @@ function auth() {
 function setTab(id, el) {
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('on'));
   el.classList.add('on');
-  document.querySelectorAll('.pane').forEach(p => p.classList.remove('on'));
-  document.getElementById('pane-' + id).classList.add('on');
+  // Hide all panes properly
+  document.querySelectorAll('.pane').forEach(p => {
+    p.classList.remove('on');
+    p.style.display = 'none';
+  });
+  const pane = document.getElementById('pane-' + id);
+  pane.classList.add('on');
+  // Chat needs flex, others need block
+  pane.style.display = (id === 'chat') ? 'flex' : 'block';
   if (id === 'chat') {
     setTimeout(() => {
       const s = document.getElementById('chat-scroll');
-      s.scrollTop = s.scrollHeight;
-      document.getElementById('chat-in').focus();
+      if (s) s.scrollTop = s.scrollHeight;
+      const inp = document.getElementById('chat-in');
+      if (inp) inp.focus();
     }, 80);
+  }
+  if (id === 'dash') {
+    drawCap();
+    setTimeout(drawCap, 100);
   }
 }
 
@@ -1375,6 +1388,10 @@ function fmtP(p) {
 
 // ── INIT ──────────────────────────────────────────────────────────────
 function init() {
+  // Set initial pane display correctly
+  document.querySelectorAll('.pane').forEach(p => p.style.display = 'none');
+  const dash = document.getElementById('pane-dash');
+  if (dash) dash.style.display = 'block';
   injectQusdt();
   fetchState();
   setInterval(fetchState, 5000);
