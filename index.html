@@ -79,9 +79,10 @@ body{color:var(--tx);font-family:'Inter',-apple-system,sans-serif;font-size:13px
 .tab.on{color:var(--go);border-bottom-color:var(--go)}
 
 /* CONTENT */
-.content{flex:1;overflow:hidden;position:relative}
-.pane{display:none;position:absolute;inset:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:env(safe-area-inset-bottom,0)}
-.pane.on{display:block}
+.content{flex:1;overflow:hidden;position:relative;display:flex;flex-direction:column}
+.pane{display:none;flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:env(safe-area-inset-bottom,0)}
+.pane.on{display:block;flex:1}
+#pane-chat{flex-direction:column}
 #pane-chat.on{display:flex!important}
 /* Chat pane special */
 #pane-chat{display:none;flex-direction:column;position:absolute;inset:0}
@@ -169,10 +170,14 @@ body{color:var(--tx);font-family:'Inter',-apple-system,sans-serif;font-size:13px
 .pnl-val{font-size:20px;font-weight:700;letter-spacing:-.8px}
 /* candle */
 .cdl-card{border-top:1px solid var(--b)}
-.cdl-hdr{padding:7px 14px;display:flex;align-items:center;justify-content:space-between}
-.cdl-ttl{font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:1px}
-.cdl-price{font-size:11px;font-weight:600;color:var(--tx)}
-.cdl-body{padding:0 10px 8px}
+.cdl-hdr{padding:9px 14px 6px;display:flex;align-items:center;justify-content:space-between}
+.cdl-ttl{font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:1px;display:flex;align-items:center;gap:8px}
+.cdl-price{font-size:13px;font-weight:700;color:var(--tx)}
+.cdl-pnl-badge{font-size:10px;font-weight:600;padding:2px 8px;border-radius:4px}
+.cdl-body{padding:0 8px 8px;position:relative}
+.cdl-zoom{display:flex;gap:4px;margin-top:4px;padding:0 14px 8px}
+.cdl-z-btn{font-size:9px;padding:2px 8px;border-radius:4px;background:var(--bg3);border:1px solid var(--b);color:var(--t2);cursor:pointer;font-family:inherit;transition:all .15s}
+.cdl-z-btn.on{background:var(--gold3);border-color:var(--gob);color:var(--go)}
 /* grid */
 .pos-grid{display:grid;grid-template-columns:1fr 1fr}
 .pc{padding:10px 14px;border-bottom:1px solid var(--b);border-right:1px solid var(--b)}
@@ -502,10 +507,18 @@ body{color:var(--tx);font-family:'Inter',-apple-system,sans-serif;font-size:13px
           <!-- Candle chart — visible si position ouverte -->
           <div class="cdl-card" id="cdl-card" style="display:none">
             <div class="cdl-hdr">
-              <span class="cdl-ttl" id="cdl-lbl">— · 1 min</span>
+              <div class="cdl-ttl">
+                <span id="cdl-lbl">— · 1 min</span>
+                <span class="cdl-pnl-badge m" id="cdl-pnl-badge"></span>
+              </div>
               <span class="cdl-price" id="cdl-price">—</span>
             </div>
-            <div class="cdl-body"><canvas id="cdl" height="100"></canvas></div>
+            <div class="cdl-body"><canvas id="cdl" height="160"></canvas></div>
+          <div class="cdl-zoom">
+            <button class="cdl-z-btn on" onclick="setCdlZoom(20,this)">20</button>
+            <button class="cdl-z-btn" onclick="setCdlZoom(40,this)">40</button>
+            <button class="cdl-z-btn" onclick="setCdlZoom(60,this)">60</button>
+          </div>
           </div>
           <div class="pos-grid">
             <div class="pc"><div class="pc-l">Prix d'entrée</div><div class="pc-v" id="pos-ep">—</div></div>
@@ -622,27 +635,21 @@ function auth() {
 function setTab(id, el) {
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('on'));
   el.classList.add('on');
-  // Hide all panes properly
   document.querySelectorAll('.pane').forEach(p => {
     p.classList.remove('on');
     p.style.display = 'none';
   });
   const pane = document.getElementById('pane-' + id);
+  if (!pane) return;
   pane.classList.add('on');
-  // Chat needs flex, others need block
-  pane.style.display = (id === 'chat') ? 'flex' : 'block';
+  pane.style.display = id === 'chat' ? 'flex' : 'block';
   if (id === 'chat') {
     setTimeout(() => {
       const s = document.getElementById('chat-scroll');
       if (s) s.scrollTop = s.scrollHeight;
-      const inp = document.getElementById('chat-in');
-      if (inp) inp.focus();
-    }, 80);
+    }, 50);
   }
-  if (id === 'dash') {
-    drawCap();
-    setTimeout(drawCap, 100);
-  }
+  if (id === 'dash') setTimeout(drawCap, 50);
 }
 
 // ── CLOCK ─────────────────────────────────────────────────────────────
@@ -839,56 +846,135 @@ async function fetchCdl(sym) {
   } catch(e) {}
 }
 
+let cdlZoom = 20; // nombre de bougies affichées
+
+function setCdlZoom(n, el) {
+  cdlZoom = n;
+  document.querySelectorAll('.cdl-z-btn').forEach(b => b.classList.remove('on'));
+  el.classList.add('on');
+  drawCdl();
+}
+
 function drawCdl() {
-  const cv = document.getElementById('cdl'); if (!cv || !cdlData.length) return;
+  const cv = document.getElementById('cdl');
+  if (!cv || !cdlData.length) return;
   const ctx = cv.getContext('2d');
-  const W = cv.offsetWidth || 370, H = 100;
-  cv.width = W; cv.height = H;
+  const W   = cv.offsetWidth || 370;
+  const H   = 160;
+  cv.width  = W * 2; cv.height = H * 2;
+  cv.style.width = W + 'px'; cv.style.height = H + 'px';
+  ctx.scale(2, 2);
   ctx.clearRect(0, 0, W, H);
 
-  const data = cdlData.slice(-40);
-  const pad = { l: 4, r: 38, t: 6, b: 14 };
-  const cW = W - pad.l - pad.r, cH = H - pad.t - pad.b, n = data.length;
-  const mn = Math.min(...data.map(c => c.l)) * .9995;
-  const mx = Math.max(...data.map(c => c.h)) * 1.0005;
+  const pos  = window._pos;
+  const data = cdlData.slice(-cdlZoom);
+  if (!data.length) return;
+
+  // Include TP/SL/ENT in price range
+  const allPrices = [
+    ...data.map(c => c.h),
+    ...data.map(c => c.l),
+    pos?.tp, pos?.sl, pos?.entryPrice
+  ].filter(Boolean);
+
+  const pad = { l: 4, r: 46, t: 8, b: 16 };
+  const cW  = W - pad.l - pad.r;
+  const cH  = H - pad.t - pad.b;
+  const mn  = Math.min(...allPrices) * 0.9985;
+  const mx  = Math.max(...allPrices) * 1.0015;
   const rng = mx - mn || 1;
-  const xOf = i => pad.l + (i + .5) * (cW / n);
-  const yOf = v => pad.t + (1 - (v - mn) / rng) * cH;
-  const bw = Math.max(2, (cW / n) * .55);
+  const n   = data.length;
+  const bw  = Math.max(2, (cW / n) * 0.6);
 
-  [0, .5, 1].forEach(f => {
+  const xOf = i  => pad.l + (i + 0.5) * (cW / n);
+  const yOf = v  => pad.t + (1 - (v - mn) / rng) * cH;
+
+  // Background
+  ctx.fillStyle = '#070707';
+  ctx.fillRect(0, 0, W, H);
+
+  // Grid
+  [0, 0.25, 0.5, 0.75, 1].forEach(f => {
     const y = pad.t + f * cH;
-    ctx.strokeStyle = '#141414'; ctx.lineWidth = 1;
+    const v = mx - f * rng;
+    ctx.strokeStyle = '#141414'; ctx.lineWidth = 0.5;
     ctx.beginPath(); ctx.moveTo(pad.l, y); ctx.lineTo(W - pad.r, y); ctx.stroke();
-    ctx.fillStyle = '#2a2a2a'; ctx.font = '8px Inter,sans-serif'; ctx.textAlign = 'left';
-    ctx.fillText(fmtP(mx - f * rng), W - pad.r + 2, y + 3);
+    ctx.fillStyle = '#333'; ctx.font = '7px Inter,sans-serif'; ctx.textAlign = 'left';
+    ctx.fillText(fmtP(v), W - pad.r + 2, y + 3);
   });
 
+  // Candles
   data.forEach((c, i) => {
-    const up = c.c >= c.o, col = up ? '#22c55e' : '#ef4444';
-    const x = xOf(i);
-    ctx.strokeStyle = col; ctx.lineWidth = 1;
-    ctx.beginPath(); ctx.moveTo(x, yOf(c.h)); ctx.lineTo(x, yOf(c.l)); ctx.stroke();
-    const top = yOf(Math.max(c.o, c.c)), bot = yOf(Math.min(c.o, c.c));
-    ctx.fillStyle = col; ctx.fillRect(x - bw / 2, top, bw, Math.max(1, bot - top));
+    const up  = c.c >= c.o;
+    const col = up ? '#22c55e' : '#ef4444';
+    const x   = xOf(i);
+
+    // Wick
+    ctx.strokeStyle = up ? '#1a6e3a' : '#8b2020';
+    ctx.lineWidth   = 1;
+    ctx.beginPath();
+    ctx.moveTo(x, yOf(c.h));
+    ctx.lineTo(x, yOf(c.l));
+    ctx.stroke();
+
+    // Body
+    const top = yOf(Math.max(c.o, c.c));
+    const bot = yOf(Math.min(c.o, c.c));
+    const ht  = Math.max(1, bot - top);
+    ctx.fillStyle = col;
+    ctx.fillRect(x - bw/2, top, bw, ht);
   });
 
-  if (window._pos) {
-    const drawLine = (price, color, lbl) => {
-      if (!price || price < mn || price > mx) return;
+  // Draw TP, SL, Entry lines with full labels
+  if (pos) {
+    const drawLevelLine = (price, color, label, bgColor) => {
+      if (!price) return;
       const y = yOf(price);
-      ctx.strokeStyle = color; ctx.lineWidth = 1; ctx.setLineDash([3, 3]);
-      ctx.beginPath(); ctx.moveTo(pad.l, y); ctx.lineTo(W - pad.r, y); ctx.stroke();
+      // Dashed line
+      ctx.strokeStyle = color;
+      ctx.lineWidth   = 1;
+      ctx.setLineDash([4, 3]);
+      ctx.beginPath();
+      ctx.moveTo(pad.l, y);
+      ctx.lineTo(W - pad.r, y);
+      ctx.stroke();
       ctx.setLineDash([]);
-      ctx.fillStyle = color; ctx.font = 'bold 8px Inter,sans-serif';
-      ctx.textAlign = 'left'; ctx.fillText(lbl, W - pad.r + 2, y + 3);
+
+      // Label pill on right
+      const lbl  = `${label} ${fmtP(price)}`;
+      const tw   = ctx.measureText(lbl).width + 6;
+      ctx.fillStyle = bgColor;
+      ctx.fillRect(W - pad.r + 1, y - 7, tw + 2, 11);
+      ctx.fillStyle = '#fff';
+      ctx.font = 'bold 7px Inter,sans-serif';
+      ctx.textAlign = 'left';
+      ctx.fillText(lbl, W - pad.r + 3, y + 3);
     };
-    drawLine(window._pos.entryPrice, '#c9a84c', 'ENT');
-    drawLine(window._pos.tp,          '#22c55e', 'TP');
-    drawLine(window._pos.sl,          '#ef4444', 'SL');
-    if (window._pos.currentPrice) {
-      ctx.beginPath(); ctx.arc(xOf(data.length - 1), yOf(window._pos.currentPrice), 3, 0, Math.PI * 2);
-      ctx.fillStyle = '#fff'; ctx.fill();
+
+    drawLevelLine(pos.tp,         '#22c55e', 'TP',  'rgba(34,197,94,.85)');
+    drawLevelLine(pos.sl,         '#ef4444', 'SL',  'rgba(239,68,68,.85)');
+    drawLevelLine(pos.entryPrice, '#c9a84c', 'ENT', 'rgba(201,168,76,.85)');
+
+    // Current price dot on last candle
+    if (pos.currentPrice) {
+      const lx = xOf(data.length - 1);
+      const ly = yOf(pos.currentPrice);
+      ctx.beginPath();
+      ctx.arc(lx, ly, 4, 0, Math.PI * 2);
+      ctx.fillStyle = '#fff';
+      ctx.fill();
+      ctx.strokeStyle = '#c9a84c';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+    }
+
+    // PNL badge update
+    const upnl  = pos.unrealizedPnl || 0;
+    const badge = document.getElementById('cdl-pnl-badge');
+    if (badge) {
+      badge.textContent = (upnl >= 0 ? '+' : '') + upnl.toFixed(4) + ' USDT';
+      badge.style.background = upnl >= 0 ? 'rgba(34,197,94,.15)' : 'rgba(239,68,68,.1)';
+      badge.style.color      = upnl >= 0 ? 'var(--gr)' : 'var(--re)';
     }
   }
 }
