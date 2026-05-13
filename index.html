@@ -343,7 +343,7 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
               <button class="tf on" onclick="setTf('max',this)">max</button>
             </div>
           </div>
-          <div class="ch-body"><canvas id="evo" height="110"></canvas></div>
+          <div class="ch-body"><canvas id="evo" height="220"></canvas></div>
         </div>
       </div>
 
@@ -370,7 +370,7 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
           </div>
           <div class="cdl-card" id="cdl-card" style="display:none">
             <div class="cdl-hdr"><span class="cdl-lbl-t" id="cdl-lbl">— · 1 min</span><span class="cdl-pr" id="cdl-pr">—</span></div>
-            <div class="cdl-body"><canvas id="cdl" height="200"></canvas></div>
+            <div class="cdl-body"><canvas id="cdl" height="220"></canvas></div>
           </div>
           <div class="pos-grid">
             <div class="pc"><div class="pc-l">Entrée</div><div class="pc-v" id="p-ep">—</div></div>
@@ -538,75 +538,91 @@ async function fetchCdl(sym){try{const r=await fetch(BOT+'/api/candles?symbol='+
 function drawCdl(){
   const cv=document.getElementById('cdl');
   if(!cv||!cdlData.length)return;
+  const dpr=window.devicePixelRatio||1;
   const ctx=cv.getContext('2d');
-  const W=cv.offsetWidth||380, H=200;
-  cv.width=W; cv.height=H;
-  // Fond sombre
+  const W=cv.offsetWidth||370;
+  const H=220;
+  cv.width=W*dpr; cv.height=H*dpr;
+  cv.style.width=W+'px'; cv.style.height=H+'px';
+  ctx.scale(dpr,dpr);
+
+  // Fond
   ctx.fillStyle='#08090a'; ctx.fillRect(0,0,W,H);
 
-  const pos=window._pos;
-  const data=cdlData.slice(-22); // 22 bougies = bien zoomed
+  const data=cdlData.slice(-30);
   if(!data.length)return;
 
-  // Inclure TP/SL/ENT dans la plage de prix
-  const allP=[...data.map(d=>d.h),...data.map(d=>d.l)];
-  if(pos){if(pos.tp)allP.push(pos.tp);if(pos.sl)allP.push(pos.sl);if(pos.entryPrice)allP.push(pos.entryPrice);}
-  const mn=Math.min(...allP)*.9988, mx=Math.max(...allP)*1.0012, rng=mx-mn||1;
+  const mn=Math.min(...data.map(d=>d.l));
+  const mx=Math.max(...data.map(d=>d.h));
+  const rng=mx-mn||1;
+  const margin=rng*0.06;
 
-  const pad={l:6,r:62,t:10,b:16};
-  const cW=W-pad.l-pad.r, cH=H-pad.t-pad.b, n=data.length;
+  const pad={l:6,r:6,t:10,b:20};
+  const cW=W-pad.l-pad.r;
+  const cH=H-pad.t-pad.b;
+  const n=data.length;
   const xOf=i=>pad.l+(i+.5)*(cW/n);
-  const yOf=v=>pad.t+(1-(v-mn)/rng)*cH;
-  const bw=Math.max(4,(cW/n)*.65);
+  const yOf=v=>pad.t+(1-((v-(mn-margin))/((mx+margin)-(mn-margin))))*cH;
+  const bw=Math.max(3,Math.floor(cW/n*0.7));
 
-  // Grille — 5 niveaux
-  [0,.25,.5,.75,1].forEach(f=>{
-    const y=pad.t+f*cH, v=mx-f*rng;
-    ctx.strokeStyle=f===0||f===1?'#202024':'#17171a';
-    ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(pad.l,y); ctx.lineTo(W-pad.r,y); ctx.stroke();
-    ctx.fillStyle='#52545e'; ctx.font='bold 8px Inter,sans-serif'; ctx.textAlign='left';
-    ctx.fillText(fmtP(v), W-pad.r+3, y+3);
-  });
+  // Grille horizontale légère
+  const steps=5;
+  for(let i=0;i<=steps;i++){
+    const v=mn-margin+(((mx+margin)-(mn-margin))/steps)*i;
+    const y=yOf(v);
+    ctx.strokeStyle='rgba(255,255,255,0.04)';
+    ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(W-pad.r,y);ctx.stroke();
+    // Prix à droite — uniquement haut et bas
+    if(i===0||i===steps){
+      ctx.fillStyle='#52545e';
+      ctx.font='9px Inter,sans-serif';
+      ctx.textAlign='right';
+      ctx.fillText(fmtP(v),W-pad.r-2,y+(i===0?-3:10));
+    }
+  }
 
   // Bougies
   data.forEach((d,i)=>{
-    const up=d.c>=d.o, col=up?'#22c55e':'#f04a4a', x=xOf(i);
+    const up=d.c>=d.o;
+    const colBody=up?'#26a65b':'#e53935';
+    const colWick=up?'#1d7a43':'#b71c1c';
+    const x=xOf(i);
+    const top=yOf(Math.max(d.o,d.c));
+    const bot=yOf(Math.min(d.o,d.c));
+    const bodyH=Math.max(1,bot-top);
+
     // Wick
-    ctx.strokeStyle=up?'#1a5c35':'#7a2020'; ctx.lineWidth=1.5;
-    ctx.beginPath(); ctx.moveTo(x,yOf(d.h)); ctx.lineTo(x,yOf(d.l)); ctx.stroke();
-    // Corps
-    const top=yOf(Math.max(d.o,d.c)), bot=yOf(Math.min(d.o,d.c));
-    ctx.fillStyle=col;
-    ctx.fillRect(x-bw/2, top, bw, Math.max(2, bot-top));
+    ctx.strokeStyle=colWick;
+    ctx.lineWidth=1;
+    ctx.beginPath();
+    ctx.moveTo(x,yOf(d.h));
+    ctx.lineTo(x,yOf(d.l));
+    ctx.stroke();
+
+    // Corps plein
+    ctx.fillStyle=colBody;
+    ctx.fillRect(x-bw/2,top,bw,bodyH);
+
+    // Contour léger
+    ctx.strokeStyle=up?'#2ecc71':'#e74c3c';
+    ctx.lineWidth=0.5;
+    ctx.strokeRect(x-bw/2,top,bw,bodyH);
   });
 
-  // Niveaux TP / SL / ENT
-  if(pos){
-    const lvl=(price,col,lbl)=>{
-      if(!price)return;
-      const y=yOf(price);
-      // Ligne
-      ctx.strokeStyle=col; ctx.lineWidth=1.5; ctx.setLineDash([5,3]); ctx.globalAlpha=.75;
-      ctx.beginPath(); ctx.moveTo(pad.l,y); ctx.lineTo(W-pad.r,y); ctx.stroke();
-      ctx.setLineDash([]); ctx.globalAlpha=1;
-      // Label
-      const txt=lbl+' '+fmtP(price);
-      ctx.font='bold 9px Inter,sans-serif';
-      const tw=ctx.measureText(txt).width+10;
-      ctx.fillStyle=col; ctx.fillRect(W-pad.r+1,y-8,tw+2,15);
-      ctx.fillStyle='#000'; ctx.textAlign='left';
-      ctx.fillText(txt, W-pad.r+4, y+4);
-    };
-    lvl(pos.tp,'#22c55e','TP');
-    lvl(pos.sl,'#f04a4a','SL');
-    lvl(pos.entryPrice,'#c8a84b','ENT');
-    // Prix actuel — gros point
-    if(pos.currentPrice){
-      const lx=xOf(data.length-1), ly=yOf(pos.currentPrice);
-      ctx.beginPath(); ctx.arc(lx,ly,5,0,Math.PI*2);
-      ctx.fillStyle='#ffffff'; ctx.fill();
-      ctx.strokeStyle='#c8a84b'; ctx.lineWidth=2; ctx.stroke();
-    }
+  // Prix actuel — ligne fine + label
+  const pos=window._pos;
+  if(pos&&pos.currentPrice){
+    const y=yOf(pos.currentPrice);
+    ctx.strokeStyle='rgba(200,168,75,0.6)';
+    ctx.lineWidth=1;
+    ctx.setLineDash([3,3]);
+    ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(W-pad.r,y);ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle='#c8a84b';
+    ctx.font='bold 9px Inter,sans-serif';
+    ctx.textAlign='right';
+    ctx.fillText('$'+fmtP(pos.currentPrice),W-pad.r-2,y-3);
   }
 }
 function startCdl(sym){cdlSym=sym;document.getElementById('cdl-card').style.display='block';document.getElementById('cdl-lbl').textContent=sym+' · 1 min';fetchCdl(sym);if(cdlTmr)clearInterval(cdlTmr);cdlTmr=setInterval(()=>fetchCdl(sym),15000);}
