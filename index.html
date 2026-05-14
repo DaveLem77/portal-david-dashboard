@@ -125,7 +125,7 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 .ch-body{padding:8px 10px 6px}
 
 /* SCANNER */
-.scan-wrap{padding:10px 16px 0;display:none}
+.scan-wrap{padding:16px 16px 0;display:none}
 .scan-card{border-radius:var(--r);border:1px solid var(--rim);background:var(--ink2);overflow:hidden}
 .scan-hdr{padding:10px 14px;border-bottom:1px solid var(--rim);display:flex;align-items:center;justify-content:space-between}
 .scan-ttl{font-family:"Inter",sans-serif;font-size:9px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--fog2);display:flex;align-items:center;gap:8px}
@@ -145,7 +145,7 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 .s-tk.g{border-color:rgba(34,197,94,.2);color:var(--em)}
 .s-tk.r{border-color:rgba(240,74,74,.18);color:var(--re)}
 .s-tk.a{border-color:var(--au3);color:var(--au)}
-.pos-wrap{.pos-wrap{padding:10px 16px 0}
+.pos-wrap{.pos-wrap{padding:16px 16px 0}
 .pos-card{border-radius:var(--r);border:1px solid var(--rim);background:var(--ink2);overflow:hidden;transition:border-color .3s}
 .pos-card.long{border-color:rgba(34,197,94,.25)}.pos-card.short{border-color:rgba(240,74,74,.22)}
 .pos-hdr{padding:13px 15px;border-bottom:1px solid var(--rim);display:flex;align-items:center;justify-content:space-between;background:linear-gradient(180deg,var(--ink3),var(--ink2))}
@@ -385,7 +385,7 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
             <div class="why-txt" id="pos-why">Surveillance en cours.</div>
           </div>
           <!-- Aivro live commentary -->
-          <div id="ai-live-wrap" style="display:none;border-top:1px solid var(--rim);padding:12px 14px">
+          <div id="ai-live-wrap" style="display:none;border-top:1px solid var(--au3);padding:13px 14px;background:var(--au4)">
             <div style="display:flex;align-items:center;gap:9px;margin-bottom:9px">
               <div class="m-av" style="width:22px;height:22px;flex-shrink:0">
                 <img src="media/bot.png" onerror="this.style.display='none'" alt="">
@@ -631,7 +631,25 @@ function drawCdl(){
     ctx.fillText('$'+fmtP(pos.currentPrice),W-pad.r-2,y-3);
   }
 }
-function startCdl(sym){cdlSym=sym;document.getElementById('cdl-card').style.display='block';document.getElementById('cdl-lbl').textContent=sym+' · 1 min';fetchCdl(sym);if(cdlTmr)clearInterval(cdlTmr);cdlTmr=setInterval(()=>fetchCdl(sym),15000);}
+let _cdlZoom=1.0,_pinchBase=1.0,_pinchDist0=0;
+
+function pinchDist(t){if(t.length<2)return 0;const dx=t[0].clientX-t[1].clientX,dy=t[0].clientY-t[1].clientY;return Math.sqrt(dx*dx+dy*dy);}
+
+function startCdl(sym){
+  cdlSym=sym;
+  document.getElementById('cdl-card').style.display='block';
+  document.getElementById('cdl-lbl').textContent=sym+' · 1 min';
+  fetchCdl(sym);
+  if(cdlTmr)clearInterval(cdlTmr);
+  cdlTmr=setInterval(()=>fetchCdl(sym),15000);
+  const cv=document.getElementById('cdl');
+  if(cv&&!cv._pinch){
+    cv._pinch=true;
+    cv.addEventListener('touchstart',e=>{if(e.touches.length===2){e.preventDefault();_pinchBase=_cdlZoom;_pinchDist0=pinchDist(e.touches);}},{passive:false});
+    cv.addEventListener('touchmove',e=>{if(e.touches.length===2&&_pinchDist0>0){e.preventDefault();const r=pinchDist(e.touches)/_pinchDist0;_cdlZoom=Math.min(6,Math.max(0.25,_pinchBase*r));drawCdl();}},{passive:false});
+    cv.addEventListener('touchend',()=>{_pinchDist0=0;});
+  }
+}
 function stopCdl(){if(cdlTmr){clearInterval(cdlTmr);cdlTmr=null;}document.getElementById('cdl-card').style.display='none';cdlData=[];cdlSym='';}
 
 const CRS=[
@@ -706,8 +724,10 @@ function showScan(show){
     const wrap=document.getElementById('ai-live-wrap');if(wrap)wrap.style.display='none';
   } else {
     stopScan();
-    fetchAiStatus();
-    if(!_aiInterval)_aiInterval=setInterval(fetchAiStatus,30000);
+    // Poll AI status every 32s (slightly offset from bot's 30s cycle)
+    if(_aiInterval){clearInterval(_aiInterval);_aiInterval=null;}
+    _aiInterval=setInterval(()=>{fetchAiStatus();},32000);
+    setTimeout(fetchAiStatus, 500); // immediate first fetch
   }
 }
 
@@ -772,6 +792,7 @@ function render(d){
     document.getElementById('pos-why').innerHTML=why;
     document.getElementById('close-row').style.display='block';
     if(cdlSym!==pos.symbol)startCdl(pos.symbol);else drawCdl();
+    fetchAiStatus();
   }else{document.getElementById('close-row').style.display='none';stopCdl();}
   renderHist(hist);
 }
@@ -796,18 +817,39 @@ async function fetchAiStatus() {
     const r = await fetch(BOT+'/api/ai-status', {cache:'no-store'});
     if (!r.ok) return;
     const d = await r.json();
+    if (!d.message) return;
     const wrap = document.getElementById('ai-live-wrap');
     const msg  = document.getElementById('ai-live-msg');
     const act  = document.getElementById('ai-live-action');
-    if (!wrap || !d.message) return;
+    if (!wrap) return;
     wrap.style.display = 'block';
-    if (msg) msg.textContent = d.message;
+    if (msg) msg.innerHTML = d.message;
     if (act) {
-      const colors = {HOLD:'#52545e',EXIT_NOW:'#f04a4a',MOVE_SL:'#c8a84b',MOVE_TP:'#22c55e',MOVE_BOTH:'#c8a84b'};
-      const labels = {HOLD:'En attente',EXIT_NOW:'Sortie imminente',MOVE_SL:'Ajustement SL',MOVE_TP:'Ajustement TP',MOVE_BOTH:'Ajustement SL + TP'};
+      const colors = {
+        HOLD:      '#52545e',
+        EXIT_NOW:  '#f04a4a',
+        MOVE_SL:   '#c8a84b',
+        MOVE_TP:   '#22c55e',
+        MOVE_BOTH: '#c8a84b',
+        AUTO_EXIT: '#f04a4a',
+      };
+      const labels = {
+        HOLD:      'Holding — signal toujours actif',
+        EXIT_NOW:  'Sortie imminente',
+        MOVE_SL:   'SL ajuste vers le haut',
+        MOVE_TP:   'TP ajuste — momentum fort',
+        MOVE_BOTH: 'SL + TP ajustes',
+        AUTO_EXIT: 'Sortie automatique declenchee',
+      };
       const a = d.action || 'HOLD';
       act.textContent = labels[a] || a;
       act.style.color = colors[a] || '#52545e';
+    }
+    // Flash the AI dot to show update
+    const dot = document.getElementById('ai-live-dot');
+    if (dot) {
+      dot.style.background = '#22c55e';
+      setTimeout(()=>{ dot.style.background='var(--au)'; }, 800);
     }
   } catch(e) {}
 }
