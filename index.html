@@ -817,13 +817,12 @@ async function fetchAiStatus() {
     const r = await fetch(BOT+'/api/ai-status', {cache:'no-store'});
     if (!r.ok) return;
     const d = await r.json();
-    if (!d.message) return;
     const wrap = document.getElementById('ai-live-wrap');
     const msg  = document.getElementById('ai-live-msg');
     const act  = document.getElementById('ai-live-action');
     if (!wrap) return;
-    wrap.style.display = 'block';
-    if (msg) msg.innerHTML = d.message;
+    wrap.style.display = 'block'; // toujours visible pendant un trade
+    if (msg) msg.innerHTML = d.message || 'Analyse en cours — prochaine mise à jour dans 90 secondes.';
     if (act) {
       const colors = {
         HOLD:      '#52545e',
